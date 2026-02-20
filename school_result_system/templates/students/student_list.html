@@ -1,0 +1,49 @@
+﻿{% extends "base.html" %}
+{% load static %}
+{% block title %}Students{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <div>
+    <h2 class="waec-title mb-1">Students</h2>
+    <div class="waec-subtitle">Class list and biodata records</div>
+  </div>
+  <a href="{% url 'students:add' %}" class="btn btn-dark btn-sm">Add Student</a>
+</div>
+
+<div class="waec-card p-3">
+  <div class="table-responsive">
+    <table class="table table-sm waec-table align-middle">
+      <thead>
+        <tr>
+          <th>Admission No</th>
+          <th>Name</th>
+          <th>Class</th>
+          <th>Gender</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for student in students %}
+        <tr>
+          <td>{{ student.admission_number }}</td>
+          <td class="fw-semibold">{{ student.first_name }} {{ student.last_name }}</td>
+          <td>{{ student.class_name }}</td>
+          <td>{{ student.get_gender_display }}</td>
+          <td class="text-end">
+            <a href="{% url 'students:edit' student.pk %}" class="btn btn-outline-dark btn-sm">Edit</a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="5">
+            <div class="empty-state">No students yet.</div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
+

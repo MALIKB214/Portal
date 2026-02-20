@@ -1,0 +1,95 @@
+﻿{% extends "base.html" %}
+{% load static %}
+{% block title %}Results{% endblock %}
+
+{% block content %}
+<div class="waec-card p-4 mb-3">
+  <h2 class="waec-title mb-1">Results</h2>
+  <div class="waec-subtitle">Per-student result overview</div>
+</div>
+
+<form method="get" class="waec-card p-3 mb-4">
+  <div class="row g-2 align-items-end">
+    <div class="col-md-4">
+      <label class="form-label">Session</label>
+      <input type="text" class="form-control form-control-sm select-search" placeholder="Search session..." data-target="result-session-select">
+      <select id="result-session-select" name="session" class="form-select form-select-sm mt-1">
+        {% for session in sessions %}
+          <option value="{{ session.id }}" {% if selected_session and session.id == selected_session.id %}selected{% endif %}>{{ session.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-4">
+      <label class="form-label">Term</label>
+      <input type="text" class="form-control form-control-sm select-search" placeholder="Search term..." data-target="result-term-select">
+      <select id="result-term-select" name="term" class="form-select form-select-sm mt-1">
+        {% for term in terms %}
+          <option value="{{ term.id }}" {% if selected_term and term.id == selected_term.id %}selected{% endif %}>{{ term }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-4">
+      <button class="btn btn-dark btn-sm w-100">Filter</button>
+    </div>
+  </div>
+</form>
+
+<div class="waec-card p-3 mb-4">
+  <div class="d-flex flex-wrap gap-2 align-items-center justify-content-between">
+    <div class="d-flex gap-2">
+      <span class="badge text-bg-secondary">Draft: {{ status_counts.draft|default:0 }}</span>
+      <span class="badge text-bg-warning">Submitted: {{ status_counts.submitted|default:0 }}</span>
+      <span class="badge text-bg-success">Approved: {{ status_counts.approved|default:0 }}</span>
+    </div>
+    {% if selected_session and selected_term %}
+    <form method="post" action="{% url 'results:submit_for_review' %}" class="d-inline">
+      {% csrf_token %}
+      <input type="hidden" name="session" value="{{ selected_session.id }}">
+      <input type="hidden" name="term" value="{{ selected_term.id }}">
+      <button class="btn btn-outline-dark btn-sm">Submit Draft Results for Approval</button>
+    </form>
+    {% endif %}
+  </div>
+</div>
+
+{% for student, results in students_results.items %}
+<div class="waec-card p-3 mb-4">
+  <h5 class="mb-3">
+    <a href="{% url 'results:student_results_sheet' student.id %}">{{ student }}</a>
+  </h5>
+  <div class="table-responsive">
+    <table class="table table-sm waec-table align-middle">
+      <thead>
+        <tr>
+          <th>Subject</th>
+          <th>Total</th>
+          <th>Grade</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for result in results %}
+        <tr>
+          <td>{{ result.subject }}</td>
+          <td>{{ result.total_score }}</td>
+          <td class="fw-semibold">{{ result.grade }}</td>
+          <td>
+            {% if result.status == 'approved' %}
+            <span class="badge text-bg-success">Approved</span>
+            {% elif result.status == 'submitted' %}
+            <span class="badge text-bg-warning">Submitted</span>
+            {% else %}
+            <span class="badge text-bg-secondary">Draft</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% empty %}
+<div class="empty-state">No results available.</div>
+{% endfor %}
+{% endblock %}
+

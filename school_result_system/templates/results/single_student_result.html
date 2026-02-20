@@ -1,0 +1,188 @@
+﻿{% extends "base.html" %}
+{% load static %}
+{% load custom_filters %}
+{% block title %}Student Result{% endblock %}
+
+{% block content %}
+<div class="waec-card p-4 mb-4">
+  <h2 class="waec-title mb-1">{{ student.last_name }} {{ student.first_name }}</h2>
+  <div class="text-muted">Admission No: {{ student.admission_number }}</div>
+  <div class="text-muted">Class: {{ student.class_name }}</div>
+</div>
+
+<form method="get" class="waec-card p-3 mb-4">
+  <div class="row g-2 align-items-end">
+    <div class="col-md-4">
+      <label class="form-label">Session</label>
+      <input type="text" class="form-control form-control-sm select-search" placeholder="Search session..." data-target="student-session-select">
+      <select id="student-session-select" name="session" class="form-select form-select-sm mt-1">
+        {% for session in sessions %}
+          <option value="{{ session.id }}" {% if selected_session and session.id == selected_session.id %}selected{% endif %}>{{ session.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-4">
+      <label class="form-label">Term</label>
+      <input type="text" class="form-control form-control-sm select-search" placeholder="Search term..." data-target="student-term-select">
+      <select id="student-term-select" name="term" class="form-select form-select-sm mt-1">
+        {% for term in terms %}
+          <option value="{{ term.id }}" {% if selected_term and term.id == selected_term.id %}selected{% endif %}>{{ term }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-4">
+      <button class="btn btn-dark btn-sm w-100">Filter</button>
+    </div>
+  </div>
+</form>
+
+{% if show_cumulative %}
+<div class="row g-3 mb-4">
+  <div class="col-md-4 col-lg-2">
+    <div class="waec-card p-3 text-center">
+      <div class="text-muted small">Term 1 Total</div>
+      <div class="fs-5 fw-bold">{{ term_totals.1 }}</div>
+    </div>
+  </div>
+  <div class="col-md-4 col-lg-2">
+    <div class="waec-card p-3 text-center">
+      <div class="text-muted small">Term 2 Total</div>
+      <div class="fs-5 fw-bold">{{ term_totals.2 }}</div>
+    </div>
+  </div>
+  <div class="col-md-4 col-lg-2">
+    <div class="waec-card p-3 text-center">
+      <div class="text-muted small">Term 3 Total</div>
+      <div class="fs-5 fw-bold">{{ term_totals.3 }}</div>
+    </div>
+  </div>
+  <div class="col-md-6 col-lg-3">
+    <div class="waec-card p-3 text-center">
+      <div class="text-muted small">Cumulative Total</div>
+      <div class="fs-5 fw-bold">{{ cumulative_total }}</div>
+    </div>
+  </div>
+  <div class="col-md-6 col-lg-3">
+    <div class="waec-card p-3 text-center">
+      <div class="text-muted small">Cumulative Average</div>
+      <div class="fs-5 fw-bold">{{ cumulative_average }}</div>
+    </div>
+  </div>
+</div>
+<div class="row g-3 mb-4">
+  <div class="col-md-4">
+    <div class="waec-card p-3 text-center">
+      <div class="text-muted small">Term 1 Average</div>
+      <div class="fs-5 fw-bold">{{ term_averages.1 }}</div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="waec-card p-3 text-center">
+      <div class="text-muted small">Term 2 Average</div>
+      <div class="fs-5 fw-bold">{{ term_averages.2 }}</div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="waec-card p-3 text-center">
+      <div class="text-muted small">Term 3 Average</div>
+      <div class="fs-5 fw-bold">{{ term_averages.3 }}</div>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+<div class="waec-card p-3 mb-4">
+  <div class="table-responsive">
+    <table class="table table-sm waec-table align-middle">
+      <thead>
+        <tr>
+          <th>Subject</th>
+          <th class="text-center">CA1</th>
+          <th class="text-center">CA2</th>
+          <th class="text-center">CA3</th>
+          <th class="text-center">Project</th>
+          <th class="text-center">Exam</th>
+          <th class="text-center">Total</th>
+          <th class="text-center">Grade</th>
+          {% if show_cumulative %}
+            <th class="text-center">T1</th>
+            <th class="text-center">T2</th>
+            <th class="text-center">T3</th>
+            <th class="text-center">Cum</th>
+          {% endif %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for result in results %}
+        <tr>
+          <td>{{ result.subject.name }}</td>
+          <td class="text-center">{{ result.ca1 }}</td>
+          <td class="text-center">{{ result.ca2 }}</td>
+          <td class="text-center">{{ result.ca3 }}</td>
+          <td class="text-center">{{ result.project }}</td>
+          <td class="text-center">{{ result.exam }}</td>
+          <td class="text-center fw-semibold">{{ result.total_score }}</td>
+          <td class="text-center fw-semibold">{{ result.grade }}</td>
+          {% if show_cumulative %}
+            {% with scores=subject_term_scores|get_item:result.subject.id %}
+              <td class="text-center">{{ scores.1 }}</td>
+              <td class="text-center">{{ scores.2 }}</td>
+              <td class="text-center">{{ scores.3 }}</td>
+              <td class="text-center">{{ subject_term_cum|get_item:result.subject.id }}</td>
+            {% endwith %}
+          {% endif %}
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="12" class="text-center text-muted py-4">No results found for this student.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="row g-3 mb-4">
+  <div class="col-md-4">
+    <div class="waec-card p-3 text-center">
+      <div class="text-muted small">Term Total</div>
+      <div class="fs-5 fw-bold">{{ term_total }}</div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="waec-card p-3 text-center">
+      <div class="text-muted small">Average</div>
+      <div class="fs-5 fw-bold">{{ average }}</div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="waec-card p-3 text-center">
+      <div class="text-muted small">Session</div>
+      <div class="fs-6 fw-bold">{{ selected_session }}</div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-3 mb-4">
+  <div class="col-md-6">
+    <div class="waec-card p-3 text-center">
+      <div class="text-muted small">Term Position</div>
+      <div class="fs-5 fw-bold">{{ term_rank_display }}</div>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="waec-card p-3 text-center">
+      <div class="text-muted small">Session Position (All Terms)</div>
+      <div class="fs-5 fw-bold">{{ session_rank_display }}</div>
+    </div>
+  </div>
+</div>
+
+<div class="d-flex gap-2">
+  <a href="{% url 'accounts:teacher_dashboard' %}" class="btn btn-dark btn-sm">Back to Dashboard</a>
+  {% if selected_session and selected_term %}
+  <a href="{% url 'results:download_result' student.id selected_session.id selected_term.id %}" class="btn btn-outline-dark btn-sm">Download PDF</a>
+  {% endif %}
+</div>
+{% endblock %}
+

@@ -1,0 +1,83 @@
+﻿{% extends "base.html" %}
+{% load static %}
+{% block title %}Setup Wizard{% endblock %}
+
+{% block content %}
+<div class="waec-card p-4 mb-4">
+  <h2 class="waec-title mb-1">School Setup Wizard</h2>
+  <div class="waec-subtitle">Complete these steps to start using the system.</div>
+</div>
+
+{% if created_message %}
+<div class="alert alert-success">{{ created_message }}</div>
+{% endif %}
+{% if error_message %}
+<div class="alert alert-danger">{{ error_message }}</div>
+{% endif %}
+
+<div class="waec-card p-4 mb-4">
+  <h5 class="mb-2">Quick Create Session + Terms</h5>
+  <form method="post" class="row g-2 align-items-end">
+    {% csrf_token %}
+    <input type="hidden" name="action" value="create_session_terms">
+    <div class="col-md-6">
+      <label class="form-label">Session Name</label>
+      <input type="text" name="session_name" class="form-control" placeholder="2025/2026" required>
+    </div>
+    <div class="col-md-3">
+      <label class="form-label">Active Term</label>
+      <select name="active_term" class="form-select">
+        <option value="1">First Term</option>
+        <option value="2">Second Term</option>
+        <option value="3">Third Term</option>
+      </select>
+    </div>
+    <div class="col-md-3">
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" name="set_active" id="set_active" checked>
+        <label class="form-check-label" for="set_active">Set session active</label>
+      </div>
+    </div>
+    <div class="col-12">
+      <button class="btn btn-dark">Create Session + Terms</button>
+    </div>
+  </form>
+</div>
+
+{% if next_steps %}
+<div class="alert alert-warning">You still have {{ next_steps|length }} step(s) to finish.</div>
+{% else %}
+<div class="alert alert-success">Setup complete. You can start entering results and payments.</div>
+{% endif %}
+
+<div class="waec-card p-3 mb-4">
+  <div class="table-responsive">
+    <table class="table table-sm waec-table align-middle">
+      <thead>
+        <tr>
+          <th>Step</th>
+          <th>Status</th>
+          <th>Details</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for step in steps %}
+        <tr>
+          <td class="fw-semibold">{{ step.name }}</td>
+          <td>{% if step.done %}<span class="badge text-bg-success">Done</span>{% else %}<span class="badge text-bg-danger">Pending</span>{% endif %}</td>
+          <td class="text-muted">{{ step.detail }}</td>
+          <td class="text-end"><a href="{{ step.link }}" class="btn btn-outline-dark btn-sm">Open</a></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="d-flex gap-2">
+  <a href="{% url 'accounts:proprietor_dashboard' %}" class="btn btn-dark btn-sm">Back to Proprietor Dashboard</a>
+  <a href="{% url 'results:sheet' %}" class="btn btn-outline-dark btn-sm">View Results Sheet</a>
+</div>
+{% endblock %}
+

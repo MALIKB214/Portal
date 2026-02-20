@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="waec-card p-4 mb-3">
+  <h2 class="waec-title mb-1">Release Results</h2>
+  <div class="waec-subtitle">Approve submitted results first, then release to students.</div>
+</div>
+
+{% if summary %}
+<div class="waec-card p-3 mb-3">
+  <div class="d-flex gap-2 flex-wrap">
+    <span class="badge text-bg-secondary">Draft: {{ summary.draft }}</span>
+    <span class="badge text-bg-warning">Submitted: {{ summary.submitted }}</span>
+    <span class="badge text-bg-success">Approved: {{ summary.approved }}</span>
+    <span class="badge text-bg-dark">Total: {{ summary.total }}</span>
+  </div>
+</div>
+{% endif %}
+
+<form method="post" class="waec-card p-3">
+  {% csrf_token %}
+  <div class="row g-2 align-items-end">
+    <div class="col-md-4">
+      <label class="form-label">Session</label>
+      <input type="text" class="form-control form-control-sm select-search" placeholder="Search session..." data-target="release-session-select">
+      <select id="release-session-select" name="session" class="form-select form-select-sm mt-1">
+        {% for session in sessions %}
+          <option value="{{ session.id }}" {% if selected_session and session.id == selected_session.id %}selected{% endif %}>{{ session.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-4">
+      <label class="form-label">Term</label>
+      <input type="text" class="form-control form-control-sm select-search" placeholder="Search term..." data-target="release-term-select">
+      <select id="release-term-select" name="term" class="form-select form-select-sm mt-1">
+        {% for term in terms %}
+          <option value="{{ term.id }}" {% if selected_term and term.id == selected_term.id %}selected{% endif %}>{{ term }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-4">
+      <label class="form-label">Class (optional)</label>
+      <input type="text" name="class_name" class="form-control form-control-sm" placeholder="e.g. JSS2">
+    </div>
+  </div>
+  <div class="mt-3">
+    <button class="btn btn-outline-dark btn-sm me-2" name="action" value="approve">Approve Submitted Results</button>
+    <button class="btn btn-dark btn-sm" name="action" value="release">Release Results</button>
+  </div>
+</form>
+{% endblock %}

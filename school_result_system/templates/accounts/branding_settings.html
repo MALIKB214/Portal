@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block title %}Branding Settings{% endblock %}
+
+{% block content %}
+<div class="waec-card p-4 mb-4">
+  <h2 class="waec-title mb-1">Branding and Grading Settings</h2>
+  <div class="waec-subtitle">Configure logo, school name, signatures, and grading scale.</div>
+</div>
+
+<form method="post" enctype="multipart/form-data" class="waec-card p-4">
+  {% csrf_token %}
+  <div class="row g-3">
+    <div class="col-md-6">
+      <label class="form-label">School Name</label>
+      {{ form.school_name }}
+    </div>
+    <div class="col-md-6">
+      <label class="form-label">School Motto</label>
+      {{ form.school_motto }}
+    </div>
+    <div class="col-md-6">
+      <label class="form-label">School Logo</label>
+      {{ form.school_logo }}
+    </div>
+    <div class="col-md-6">
+      <label class="form-label">Principal Signature Name</label>
+      {{ form.principal_signature_name }}
+    </div>
+    <div class="col-md-6">
+      <label class="form-label">Class Teacher Signature Name</label>
+      {{ form.class_teacher_signature_name }}
+    </div>
+  </div>
+
+  <hr>
+  <h5 class="mb-3">Grading Scale</h5>
+  <div class="row g-3">
+    <div class="col-md-2">
+      <label class="form-label">A Min</label>
+      {{ form.grade_a_min }}
+    </div>
+    <div class="col-md-2">
+      <label class="form-label">B Min</label>
+      {{ form.grade_b_min }}
+    </div>
+    <div class="col-md-2">
+      <label class="form-label">C Min</label>
+      {{ form.grade_c_min }}
+    </div>
+    <div class="col-md-2">
+      <label class="form-label">D Min</label>
+      {{ form.grade_d_min }}
+    </div>
+    <div class="col-md-4">
+      <label class="form-label">Pass Mark</label>
+      {{ form.pass_mark }}
+    </div>
+  </div>
+
+  {% if form.non_field_errors %}
+  <div class="alert alert-danger mt-3">
+    {% for error in form.non_field_errors %}<div>{{ error }}</div>{% endfor %}
+  </div>
+  {% endif %}
+
+  <div class="mt-4">
+    <button class="btn btn-dark">Save Settings</button>
+  </div>
+</form>
+{% endblock %}

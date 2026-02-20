@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0f766e"/>
+      <stop offset="100%" stop-color="#0ea5a4"/>
+    </linearGradient>
+  </defs>
+  <circle cx="60" cy="60" r="56" fill="url(#g)" stroke="#0f172a" stroke-width="4"/>
+  <circle cx="60" cy="60" r="40" fill="#f8fafc" stroke="#0f172a" stroke-width="2"/>
+  <path d="M40 55 L60 42 L80 55 L60 68 Z" fill="#0f766e"/>
+  <rect x="48" y="68" width="24" height="16" rx="2" fill="#0f172a"/>
+  <text x="60" y="96" font-family="Verdana" font-size="10" text-anchor="middle" fill="#0f172a">AL-WAARITH</text>
+</svg>

@@ -1,0 +1,13 @@
+{% extends "results/base.html" %}
+{% block title %}Page Not Found{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-6">
+    <div class="waec-card p-4 text-center">
+      <h3 class="waec-title mb-2">Page Not Found</h3>
+      <p class="text-muted mb-3">The page you requested does not exist.</p>
+      <a href="{% url 'accounts:teacher_login' %}" class="btn btn-dark btn-sm">Back to Home</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

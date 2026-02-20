@@ -1,0 +1,34 @@
+{% extends "results/base.html" %}
+{% block title %}Parent Portal Login{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-6">
+    <div class="waec-card p-4">
+      <h4 class="waec-title mb-1">Parent Portal Login</h4>
+      <div class="waec-subtitle mb-3">Use your child's admission number and surname.</div>
+
+      {% if messages %}
+        {% for message in messages %}
+          <div class="alert alert-danger">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+
+      <form method="post" class="row g-3">
+        {% csrf_token %}
+        <div class="col-12">
+          <label class="form-label">Admission Number</label>
+          <input type="text" name="admission_number" class="form-control" placeholder="e.g SCH/2026/001" required>
+        </div>
+        <div class="col-12">
+          <label class="form-label">Student Surname</label>
+          <input type="text" name="parent_surname" class="form-control" placeholder="e.g Bello" required>
+        </div>
+        <div class="col-12">
+          <button class="btn btn-dark w-100">Login to Portal</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

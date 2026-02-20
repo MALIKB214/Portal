@@ -1,0 +1,128 @@
+﻿{% extends "base.html" %}
+{% load static %}
+{% block title %}Invoice {{ invoice.id }}{% endblock %}
+
+{% block content %}
+<div class="waec-card p-4 mb-4">
+  <h3 class="waec-title mb-1">Invoice #{{ invoice.id }}</h3>
+  <div class="waec-subtitle">{{ invoice.student.full_name }} | {{ invoice.session }}{% if invoice.term %} - {{ invoice.term }}{% endif %}</div>
+</div>
+
+<div class="row g-4">
+  <div class="col-lg-6">
+    <div class="waec-card p-3">
+      <h5 class="mb-2">Invoice Items</h5>
+      <div class="table-responsive">
+        <table class="table table-sm waec-table align-middle">
+          <thead>
+            <tr>
+              <th>Category</th>
+              <th>Description</th>
+              <th>Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in invoice.items.all %}
+            <tr>
+              <td>{{ item.category.name }}</td>
+              <td>{{ item.description }}</td>
+              <td>{{ item.amount }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="3" class="text-center text-muted py-3">No items yet.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <form method="post" class="row g-3">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="add_item">
+        {{ item_form.as_p }}
+        <div class="col-12">
+          <button class="btn btn-dark">Add Item</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="col-lg-6">
+    <div class="waec-card p-3">
+      <h5 class="mb-2">Payments</h5>
+      <div class="table-responsive">
+        <table class="table table-sm waec-table align-middle">
+          <thead>
+            <tr>
+              <th>Receipt</th>
+              <th>Amount</th>
+              <th>Method</th>
+              <th>Status</th>
+              <th>Approval Note</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for payment in invoice.payments.all %}
+            <tr>
+              <td>{{ payment.receipt_number }}</td>
+              <td>{{ payment.amount }}</td>
+              <td>{{ payment.get_method_display }}</td>
+              <td>
+                {% if payment.approval_status == "approved" %}
+                  <span class="badge text-bg-success">Approved</span>
+                {% elif payment.approval_status == "rejected" %}
+                  <span class="badge text-bg-danger">Rejected</span>
+                {% else %}
+                  <span class="badge text-bg-warning">Pending</span>
+                {% endif %}
+              </td>
+              <td>
+                {% if payment.approval_status == "approved" or payment.approval_status == "rejected" %}
+                  {{ payment.approval_note|default:"-" }}
+                {% else %}
+                  -
+                {% endif %}
+              </td>
+              <td class="text-end">
+                <a class="btn btn-outline-dark btn-sm" href="{% url 'billing:receipt' payment.id %}">Receipt</a>
+                {% if payment.approval_status == "pending" %}
+                  <form method="post" class="d-inline-flex flex-wrap gap-2 justify-content-end align-items-center mt-2">
+                    {% csrf_token %}
+                    <input type="hidden" name="payment_id" value="{{ payment.id }}">
+                    <input type="text" name="approval_note" class="form-control form-control-sm" placeholder="Approval note (optional)">
+                    <button class="btn btn-success btn-sm" name="action" value="approve_payment">Approve</button>
+                    <button class="btn btn-danger btn-sm" name="action" value="reject_payment">Reject</button>
+                  </form>
+                {% endif %}
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="6" class="text-center text-muted py-3">No payments yet.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="row g-2 mb-3">
+        <div class="col-md-4"><div class="badge-pill">Total: {{ invoice.total_amount }}</div></div>
+        <div class="col-md-4"><div class="badge-pill">Approved Paid: {{ invoice.paid_amount }}</div></div>
+        <div class="col-md-4"><div class="badge-pill">Balance: {{ invoice.balance }}</div></div>
+      </div>
+
+      <form method="post" class="row g-3">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="add_payment">
+        {{ payment_form.as_p }}
+        <div class="col-12">
+          <button class="btn btn-dark">Record Payment</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+

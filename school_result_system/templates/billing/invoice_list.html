@@ -1,0 +1,53 @@
+﻿{% extends "base.html" %}
+{% load static %}
+{% block title %}Invoices{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <div>
+    <h2 class="waec-title mb-1">Invoices</h2>
+    <div class="waec-subtitle">Billing records for fees and projects</div>
+  </div>
+  <a href="{% url 'billing:invoice_create' %}" class="btn btn-dark btn-sm">New Invoice</a>
+</div>
+
+<div class="waec-card p-3">
+  <div class="table-responsive">
+    <table class="table table-sm waec-table align-middle">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Student</th>
+          <th>Session</th>
+          <th>Term</th>
+          <th>Status</th>
+          <th>Total</th>
+          <th>Balance</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for invoice in invoices %}
+        <tr>
+          <td>{{ invoice.id }}</td>
+          <td class="fw-semibold">{{ invoice.student.full_name }}</td>
+          <td>{{ invoice.session }}</td>
+          <td>{{ invoice.term }}</td>
+          <td>{{ invoice.get_status_display }}</td>
+          <td>{{ invoice.total_amount }}</td>
+          <td>{{ invoice.balance }}</td>
+          <td class="text-end"><a class="btn btn-outline-dark btn-sm" href="{% url 'billing:invoice_detail' invoice.id %}">Open</a></td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="8">
+            <div class="empty-state">No invoices yet.</div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
+

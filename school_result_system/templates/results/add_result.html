@@ -1,0 +1,77 @@
+﻿{% extends "base.html" %}
+{% load static %}
+{% block title %}Add Result{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-7">
+    <div class="waec-card p-4">
+      <h4 class="waec-title mb-1">Add Result</h4>
+      <div class="waec-subtitle mb-3">Fill in CA scores, project, and exam score.</div>
+      {% if form.non_field_errors %}
+        <div class="alert alert-danger">
+          {% for error in form.non_field_errors %}
+            <div>{{ error }}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
+      <form method="post" class="row g-3">
+        {% csrf_token %}
+        <div class="col-12">
+          <label class="form-label">Student</label>
+          <input type="text" class="form-control form-control-sm select-search" placeholder="Search student..." data-target="id_student">
+          {{ form.student }}
+          {% if form.student.errors %}<div class="text-danger small mt-1">{{ form.student.errors|join:", " }}</div>{% endif %}
+        </div>
+        <div class="col-12">
+          <label class="form-label">Subject</label>
+          <input type="text" class="form-control form-control-sm select-search" placeholder="Search subject..." data-target="id_subject">
+          {{ form.subject }}
+          {% if form.subject.errors %}<div class="text-danger small mt-1">{{ form.subject.errors|join:", " }}</div>{% endif %}
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Session</label>
+          <input type="text" class="form-control form-control-sm select-search" placeholder="Search session..." data-target="id_session">
+          {{ form.session }}
+          {% if form.session.errors %}<div class="text-danger small mt-1">{{ form.session.errors|join:", " }}</div>{% endif %}
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Term</label>
+          <input type="text" class="form-control form-control-sm select-search" placeholder="Search term..." data-target="id_term">
+          {{ form.term }}
+          {% if form.term.errors %}<div class="text-danger small mt-1">{{ form.term.errors|join:", " }}</div>{% endif %}
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">CA1 (10)</label>
+          {{ form.ca1 }}
+          {% if form.ca1.errors %}<div class="text-danger small mt-1">{{ form.ca1.errors|join:", " }}</div>{% endif %}
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">CA2 (10)</label>
+          {{ form.ca2 }}
+          {% if form.ca2.errors %}<div class="text-danger small mt-1">{{ form.ca2.errors|join:", " }}</div>{% endif %}
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">CA3 (10)</label>
+          {{ form.ca3 }}
+          {% if form.ca3.errors %}<div class="text-danger small mt-1">{{ form.ca3.errors|join:", " }}</div>{% endif %}
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Project (10)</label>
+          {{ form.project }}
+          {% if form.project.errors %}<div class="text-danger small mt-1">{{ form.project.errors|join:", " }}</div>{% endif %}
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Exam (60)</label>
+          {{ form.exam }}
+          {% if form.exam.errors %}<div class="text-danger small mt-1">{{ form.exam.errors|join:", " }}</div>{% endif %}
+        </div>
+        <div class="col-12">
+          <button type="submit" class="btn btn-dark w-100">Save Result</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+

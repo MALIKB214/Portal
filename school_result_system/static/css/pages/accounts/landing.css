@@ -1,0 +1,29 @@
+.landing-hero {
+  background: linear-gradient(145deg, rgba(245, 158, 11, 0.14), rgba(37, 99, 235, 0.12));
+}
+
+.landing-logo {
+  width: 120px;
+  height: 120px;
+  object-fit: contain;
+  border-radius: 18px;
+  border: 1px solid var(--waec-border);
+  background: #fff;
+  padding: 10px;
+}
+
+.feature-item {
+  border: 1px solid var(--waec-border);
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.pricing-card {
+  border: 1px solid var(--waec-border);
+  border-radius: 12px;
+  background: linear-gradient(180deg, #ffffff, #f8fafc);
+}
+
+body[data-theme="dark"] .feature-item,
+body[data-theme="dark"] .pricing-card {
+  background: rgba(15, 23, 42, 0.6);
+}

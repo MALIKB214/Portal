@@ -1,0 +1,85 @@
+﻿{% extends "base.html" %}
+{% load static account_filters %}
+{% block title %}Teacher Dashboard{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+  <div class="col-lg-3">
+    <div class="waec-card p-3">
+      <div class="fw-bold mb-2">Teacher Menu</div>
+      <div class="text-muted small mb-3">Class: {{ request.user.teacher_class.name|default:"Not Assigned" }}</div>
+      <div class="list-group">
+        <a href="#" class="list-group-item list-group-item-action active">Dashboard</a>
+        <a href="{% url 'students:list' %}" class="list-group-item list-group-item-action">Students</a>
+        <a href="{% url 'results:sheet' %}" class="list-group-item list-group-item-action">Results Sheet</a>
+        <a href="{% url 'results:add' %}" class="list-group-item list-group-item-action">Add Result</a>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-9">
+    <div class="waec-card p-4 d-flex justify-content-between align-items-center mb-4">
+      <div>
+        <h2 class="waec-title mb-1">Welcome, {{ request.user.username }}</h2>
+        <div class="waec-subtitle">Teacher Dashboard</div>
+      </div>
+      <div class="text-muted small">{{ session|default:"" }} {{ term|default:"" }}</div>
+    </div>
+
+    <div class="row g-3 mb-4">
+      <div class="col-md-6">
+        <div class="waec-card p-3">
+          <div class="text-muted small">Students</div>
+          <div class="fs-3 fw-bold">{{ students_count }}</div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="waec-card p-3">
+          <div class="text-muted small">Results</div>
+          <div class="fs-3 fw-bold">{{ results_count }}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="waec-card p-3">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <h5 class="mb-0">Latest Student Results Preview</h5>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-sm waec-table align-middle">
+          <thead>
+            <tr>
+              <th>Student</th>
+              {% for subject in subjects %}
+                <th class="text-center">{{ subject.name }}</th>
+              {% endfor %}
+              <th class="text-center">Total</th>
+              <th class="text-center">Average</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for student_data in students_data_preview %}
+            <tr>
+              <td>
+                <a href="{% url 'results:student_results_sheet' student_data.student.id %}">
+                  {{ student_data.student.first_name }} {{ student_data.student.last_name }}
+                </a>
+              </td>
+              {% for subject in subjects %}
+                <td class="text-center">{{ student_data.results|dict_get:subject.name }}</td>
+              {% endfor %}
+              <td class="text-center fw-semibold">{{ student_data.total }}</td>
+              <td class="text-center fw-semibold">{{ student_data.average }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="{{ subjects|length|add:3 }}" class="text-center text-muted py-4">No results yet.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+

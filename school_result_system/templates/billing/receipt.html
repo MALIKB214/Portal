@@ -1,0 +1,55 @@
+﻿{% extends "base.html" %}
+{% load static %}
+{% block title %}Receipt {{ payment.receipt_number }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-6">
+    <div class="waec-card p-4">
+      <div class="text-center mb-3">
+        <h4 class="waec-title">Payment Receipt</h4>
+        <div class="waec-subtitle">Al-Waarith Model College</div>
+      </div>
+      <div class="row g-2">
+        <div class="col-6"><strong>Receipt No:</strong></div>
+        <div class="col-6">{{ payment.receipt_number }}</div>
+        <div class="col-6"><strong>Student:</strong></div>
+        <div class="col-6">{{ payment.invoice.student.full_name }}</div>
+        <div class="col-6"><strong>Session:</strong></div>
+        <div class="col-6">{{ payment.invoice.session }}</div>
+        {% if payment.invoice.term %}
+        <div class="col-6"><strong>Term:</strong></div>
+        <div class="col-6">{{ payment.invoice.term }}</div>
+        {% endif %}
+        <div class="col-6"><strong>Amount:</strong></div>
+        <div class="col-6">{{ payment.amount }}</div>
+        <div class="col-6"><strong>Method:</strong></div>
+        <div class="col-6">{{ payment.get_method_display }}</div>
+        <div class="col-6"><strong>Status:</strong></div>
+        <div class="col-6">{{ payment.get_approval_status_display }}</div>
+        {% if payment.approved_by %}
+        <div class="col-6"><strong>Approved By:</strong></div>
+        <div class="col-6">{{ payment.approved_by.username }}</div>
+        <div class="col-6"><strong>Approved At:</strong></div>
+        <div class="col-6">{{ payment.approved_at }}</div>
+        {% endif %}
+        <div class="col-6"><strong>Date:</strong></div>
+        <div class="col-6">{{ payment.paid_at }}</div>
+        {% if payment.reference %}
+        <div class="col-6"><strong>Reference:</strong></div>
+        <div class="col-6">{{ payment.reference }}</div>
+        {% endif %}
+        {% if payment.approval_note %}
+        <div class="col-6"><strong>Approval Note:</strong></div>
+        <div class="col-6">{{ payment.approval_note }}</div>
+        {% endif %}
+        {% if payment.notes %}
+        <div class="col-6"><strong>Notes:</strong></div>
+        <div class="col-6">{{ payment.notes }}</div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+

@@ -1,0 +1,510 @@
+﻿{% extends "base.html" %}
+{% load static %}
+{% block title %}Proprietor Dashboard{% endblock %}
+
+{% block content %}
+<div class="waec-card p-4 mb-4">
+  <div class="d-flex justify-content-between align-items-center">
+    <div>
+      <h2 class="waec-title mb-1">Proprietor Dashboard</h2>
+      <div class="waec-subtitle">Overview of performance and finances</div>
+    </div>
+    <div class="text-muted small">{% if session %}Active Session: {{ session }}{% endif %}</div>
+  </div>
+</div>
+
+<form method="get" class="waec-card p-3 mb-4">
+  <div class="row g-2 align-items-end">
+    <div class="col-md-4">
+      <label class="form-label">Session</label>
+      <input type="text" class="form-control form-control-sm select-search" data-target="dashboard-session" placeholder="Search session">
+      <select id="dashboard-session" name="session" class="form-select form-select-sm">
+        {% for s in sessions %}
+          <option value="{{ s.id }}" {% if s.id == session.id %}selected{% endif %}>{{ s }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-4">
+      <label class="form-label">Term</label>
+      <input type="text" class="form-control form-control-sm select-search" data-target="dashboard-term" placeholder="Search term">
+      <select id="dashboard-term" name="term" class="form-select form-select-sm">
+        {% for t in terms %}
+          <option value="{{ t.id }}" {% if t.id == term.id %}selected{% endif %}>{{ t }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-4">
+      <button class="btn btn-dark btn-sm" type="submit">Apply Filter</button>
+    </div>
+  </div>
+</form>
+
+<div class="mb-3">
+  <a href="{% url 'accounts:setup_wizard' %}" class="btn btn-dark btn-sm">Open Setup Wizard</a>
+  <a href="{% url 'accounts:branding_settings' %}" class="btn btn-outline-dark btn-sm">Branding Settings</a>
+</div>
+
+<div class="row g-3 mb-4">
+  <div class="col-md-4">
+    <div class="waec-card p-3">
+      <div class="text-muted small">Students</div>
+      <div class="fs-3 fw-bold">{{ students_count }}</div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="waec-card p-3">
+      <div class="text-muted small">Results</div>
+      <div class="fs-3 fw-bold">{{ results_count }}</div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="waec-card p-3">
+      <div class="text-muted small">Outstanding Balance</div>
+      <div class="fs-3 fw-bold">{{ total_outstanding }}</div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-3 mb-4">
+  <div class="col-md-4">
+    <div class="waec-card p-3">
+      <div class="text-muted small">Total Collected</div>
+      <div class="fs-4 fw-bold">{{ total_collected }}</div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="waec-card p-3">
+      <div class="text-muted small">Pending Payments</div>
+      <div class="fs-4 fw-bold">{{ pending_payments }}</div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="waec-card p-3">
+      <div class="text-muted small">Approved Today</div>
+      <div class="fs-4 fw-bold">{{ approved_today }}</div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-3 mb-4">
+  <div class="col-md-3">
+    <div class="waec-card p-3">
+      <div class="text-muted small">Invoices (Total)</div>
+      <div class="fs-4 fw-bold">{{ invoice_total_count }}</div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="waec-card p-3">
+      <div class="text-muted small">Invoices Paid</div>
+      <div class="fs-4 fw-bold">{{ invoice_status_counts.paid|default:0 }}</div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="waec-card p-3">
+      <div class="text-muted small">Invoices Partial</div>
+      <div class="fs-4 fw-bold">{{ invoice_status_counts.partial|default:0 }}</div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="waec-card p-3">
+      <div class="text-muted small">Invoices Unpaid</div>
+      <div class="fs-4 fw-bold">{{ invoice_status_counts.unpaid|default:0 }}</div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-3 mb-4">
+  <div class="col-md-4">
+    <div class="waec-card p-3">
+      <div class="text-muted small">Payments Approved</div>
+      <div class="fs-4 fw-bold">{{ payment_status_counts.approved|default:0 }}</div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="waec-card p-3">
+      <div class="text-muted small">Payments Pending</div>
+      <div class="fs-4 fw-bold">{{ payment_status_counts.pending|default:0 }}</div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="waec-card p-3">
+      <div class="text-muted small">Payments Rejected</div>
+      <div class="fs-4 fw-bold">{{ payment_status_counts.rejected|default:0 }}</div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-4 mb-4">
+  <div class="col-lg-6">
+    <div class="waec-card p-3">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <h5 class="mb-0">Recent Invoices</h5>
+        <a href="{% url 'billing:invoice_list' %}" class="btn btn-outline-dark btn-sm">View All</a>
+      </div>
+      <div class="list-group list-group-flush">
+        {% for invoice in recent_invoices %}
+        <div class="list-group-item d-flex justify-content-between align-items-center">
+          <div>
+            <div class="fw-semibold">{{ invoice.student.full_name }}</div>
+            <div class="text-muted small">{{ invoice.session }}{% if invoice.term %} - {{ invoice.term }}{% endif %}</div>
+          </div>
+          <a href="{% url 'billing:invoice_detail' invoice.id %}" class="btn btn-sm btn-dark">Open</a>
+        </div>
+        {% empty %}
+        <div class="list-group-item text-muted">No invoices yet.</div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-6">
+    <div class="waec-card p-3">
+      <h5 class="mb-2">Promotion Averages (Top 10)</h5>
+      <div class="list-group list-group-flush">
+        {% for item in promotion_summary %}
+        <div class="list-group-item d-flex justify-content-between">
+          <div>{{ item.student.full_name }}</div>
+          <div class="fw-semibold">{{ item.average }}</div>
+        </div>
+        {% empty %}
+        <div class="list-group-item text-muted">No promotion data yet.</div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="waec-card p-3 mb-4">
+  <div class="d-flex justify-content-between align-items-center mb-2">
+    <h5 class="mb-0">Pass/Fail Analytics</h5>
+    <div class="text-muted small">
+      {% if analytics_term %}Term: {{ analytics_term }}{% endif %}
+    </div>
+  </div>
+  <form method="get" class="row g-2 align-items-end mb-3">
+    <div class="col-md-4">
+      <label class="form-label">Session</label>
+      <input type="text" class="form-control form-control-sm select-search" data-target="analytics-session" placeholder="Search session">
+      <select id="analytics-session" name="session" class="form-select form-select-sm">
+        {% for s in sessions %}
+          <option value="{{ s.id }}" {% if s.id == session.id %}selected{% endif %}>{{ s }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-4">
+      <label class="form-label">Term</label>
+      <input type="text" class="form-control form-control-sm select-search" data-target="analytics-term" placeholder="Search term">
+      <select id="analytics-term" name="term" class="form-select form-select-sm">
+        {% for t in terms %}
+          <option value="{{ t.id }}" {% if t.id == term.id %}selected{% endif %}>{{ t }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-4">
+      <button class="btn btn-dark btn-sm" type="submit">Apply</button>
+    </div>
+  </form>
+  <div class="d-flex gap-2 mb-3">
+    <a class="btn btn-outline-dark btn-sm" href="{% url 'accounts:analytics_export' %}?session={{ session.id }}&term={{ term.id }}&export=csv">Export CSV</a>
+    <form id="analyticsPdfForm" method="post" action="{% url 'accounts:analytics_export' %}">
+      {% csrf_token %}
+      <input type="hidden" name="session" value="{{ session.id }}">
+      <input type="hidden" name="term" value="{{ term.id }}">
+      <input type="hidden" name="export" value="pdf">
+      <input type="hidden" name="chart_image" id="analyticsChartImage">
+      <button class="btn btn-outline-dark btn-sm" id="analyticsPdfBtn" type="submit">
+        <span class="spinner-border spinner-border-sm d-none me-1" id="analyticsPdfSpinner" role="status" aria-hidden="true"></span>
+        Export PDF
+      </button>
+    </form>
+    <button class="btn btn-outline-dark btn-sm" id="downloadChartPng" type="button">Download PNG</button>
+  </div>
+  <form id="chartPrefForm" method="post" action="{% url 'accounts:proprietor_dashboard' %}" class="mb-3">
+    {% csrf_token %}
+    <input type="hidden" name="action" value="save_chart_prefs">
+    <input type="hidden" name="stacked" id="chartPrefStacked" value="{{ chart_pref_stacked|yesno:'true,false' }}">
+    <input type="hidden" name="legend" id="chartPrefLegend" value="{{ chart_pref_legend|yesno:'true,false' }}">
+    <input type="hidden" name="redirect_to" value="{% url 'accounts:proprietor_dashboard' %}?session={{ session.id }}&term={{ term.id }}">
+    <button class="btn btn-dark btn-sm" type="submit" id="saveChartSettingsBtn">Save Chart Settings</button>
+  </form>
+  <div class="table-responsive">
+    <table class="table table-sm waec-table align-middle">
+      <thead>
+        <tr>
+          <th>Class</th>
+          <th>Total Students</th>
+          <th>Evaluated</th>
+          <th>Passed</th>
+          <th>Failed</th>
+          <th>Pass Rate</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in pass_fail_analytics %}
+        <tr>
+          <td>{{ row.class_name }}</td>
+          <td>{{ row.total_students }}</td>
+          <td>{{ row.evaluated }}</td>
+          <td>{{ row.passed }}</td>
+          <td>{{ row.failed }}</td>
+          <td>{{ row.pass_rate }}%</td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="6" class="text-center text-muted py-3">No analytics data yet.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <div class="row g-3 mt-2">
+    <div class="col-12">
+      <div class="waec-card p-3">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <div class="fw-semibold">Pass/Fail Distribution</div>
+          <div class="d-flex gap-2">
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" id="chartStacked" {% if chart_pref_stacked %}checked{% endif %}>
+              <label class="form-check-label small" for="chartStacked">Stacked</label>
+            </div>
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" id="chartLegend" {% if chart_pref_legend %}checked{% endif %}>
+              <label class="form-check-label small" for="chartLegend">Legend</label>
+            </div>
+          </div>
+        </div>
+        <div class="analytics-chart-wrap">
+          <canvas id="passFailChart"></canvas>
+        </div>
+      </div>
+    </div>
+    <div class="col-12">
+      <div class="waec-card p-3">
+        <div class="fw-semibold mb-2">Top 10 Per Class</div>
+        <div class="list-group list-group-flush">
+          {% for class_name, rows in class_top10.items %}
+          <div class="list-group-item">
+            <div class="d-flex justify-content-between align-items-center">
+              <div class="fw-semibold">{{ class_name }}</div>
+              <div class="btn-group btn-group-sm">
+                <a class="btn btn-outline-dark" href="{% url 'accounts:analytics_export' %}?session={{ session.id }}&term={{ term.id }}&class_name={{ class_name }}&export=csv">CSV</a>
+                <form class="perClassPdfForm" method="post" action="{% url 'accounts:analytics_export' %}">
+                  {% csrf_token %}
+                  <input type="hidden" name="session" value="{{ session.id }}">
+                  <input type="hidden" name="term" value="{{ term.id }}">
+                  <input type="hidden" name="class_name" value="{{ class_name }}">
+                  <input type="hidden" name="export" value="pdf">
+                  <input type="hidden" name="chart_image" class="perClassChartImage">
+                  <button class="btn btn-outline-dark perClassPdfBtn" type="submit">
+                    <span class="spinner-border spinner-border-sm d-none me-1 perClassPdfSpinner" role="status" aria-hidden="true"></span>
+                    PDF
+                  </button>
+                </form>
+                <button class="btn btn-outline-dark perClassPngBtn" type="button" data-class-name="{{ class_name }}">PNG</button>
+              </div>
+            </div>
+            <ol class="mb-0 small">
+              {% for item in rows %}
+                <li>{{ item.student.full_name }} ({{ item.total }})</li>
+              {% endfor %}
+            </ol>
+          </div>
+          {% empty %}
+          <div class="list-group-item text-muted">No ranking data yet.</div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="text-muted small mt-2">
+    Pass/Fail uses average > {{ current_pass_mark }}. Third term uses cumulative average for the session.
+  </div>
+</div>
+
+<div class="waec-card p-3">
+  <h5 class="mb-2">Finance Summary</h5>
+  <div class="row g-3">
+    <div class="col-md-6">
+      <div class="badge-pill">Total Collected: {{ total_collected }}</div>
+    </div>
+    <div class="col-md-6">
+      <div class="badge-pill">Outstanding Balance: {{ total_outstanding }}</div>
+    </div>
+  </div>
+  <div class="mt-3">
+    <a href="{% url 'billing:invoice_create' %}" class="btn btn-dark btn-sm">Create Invoice</a>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const labels = [{% for row in pass_fail_analytics %}"{{ row.class_name }}"{% if not forloop.last %},{% endif %}{% endfor %}];
+    const passData = [{% for row in pass_fail_analytics %}{{ row.passed }}{% if not forloop.last %},{% endif %}{% endfor %}];
+    const failData = [{% for row in pass_fail_analytics %}{{ row.failed }}{% if not forloop.last %},{% endif %}{% endfor %}];
+    const ctx = document.getElementById("passFailChart");
+    const stackedToggle = document.getElementById("chartStacked");
+    const legendToggle = document.getElementById("chartLegend");
+    const pdfForm = document.getElementById("analyticsPdfForm");
+    const chartImageInput = document.getElementById("analyticsChartImage");
+    const prefForm = document.getElementById("chartPrefForm");
+    const prefStacked = document.getElementById("chartPrefStacked");
+    const prefLegend = document.getElementById("chartPrefLegend");
+    const downloadPngBtn = document.getElementById("downloadChartPng");
+    const perClassForms = document.querySelectorAll(".perClassPdfForm");
+    const analyticsPdfBtn = document.getElementById("analyticsPdfBtn");
+    const analyticsPdfSpinner = document.getElementById("analyticsPdfSpinner");
+    const perClassPngButtons = document.querySelectorAll(".perClassPngBtn");
+    if (ctx) {
+      const classIndex = labels.reduce((acc, label, idx) => {
+        acc[label] = idx;
+        return acc;
+      }, {});
+
+      const buildClassChartImage = (className) => {
+        const idx = classIndex[className];
+        if (idx === undefined) {
+          return "";
+        }
+        const canvas = document.createElement("canvas");
+        const tempCtx = canvas.getContext("2d");
+        canvas.width = 500;
+        canvas.height = 200;
+        const tempChart = new Chart(tempCtx, {
+          type: "bar",
+          data: {
+            labels: [className],
+            datasets: [
+              { label: "Pass", data: [passData[idx]], backgroundColor: "#1f8b4c" },
+              { label: "Fail", data: [failData[idx]], backgroundColor: "#c0392b" }
+            ]
+          },
+          options: {
+            responsive: false,
+            scales: {
+              x: { stacked: stackedToggle && stackedToggle.checked },
+              y: { beginAtZero: true, stacked: stackedToggle && stackedToggle.checked }
+            },
+            plugins: { legend: { display: legendToggle && legendToggle.checked } }
+          }
+        });
+        const image = tempChart.toBase64Image("image/png", 1.0);
+        tempChart.destroy();
+        return image;
+      };
+
+      const chart = new Chart(ctx, {
+        type: "bar",
+        data: {
+          labels,
+          datasets: [
+            { label: "Pass", data: passData, backgroundColor: "#1f8b4c" },
+            { label: "Fail", data: failData, backgroundColor: "#c0392b" }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            x: {
+              stacked: stackedToggle && stackedToggle.checked,
+              ticks: {
+                autoSkip: true,
+                maxRotation: 25,
+                minRotation: 0
+              }
+            },
+            y: { beginAtZero: true, stacked: stackedToggle && stackedToggle.checked }
+          },
+          plugins: {
+            legend: { display: legendToggle && legendToggle.checked }
+          }
+        }
+      });
+      if (stackedToggle) {
+        stackedToggle.addEventListener("change", () => {
+          chart.options.scales.x.stacked = stackedToggle.checked;
+          chart.options.scales.y.stacked = stackedToggle.checked;
+          chart.update();
+          if (prefStacked) {
+            prefStacked.value = stackedToggle.checked ? "true" : "false";
+          }
+        });
+      }
+      if (legendToggle) {
+        legendToggle.addEventListener("change", () => {
+          chart.options.plugins.legend.display = legendToggle.checked;
+          chart.update();
+          if (prefLegend) {
+            prefLegend.value = legendToggle.checked ? "true" : "false";
+          }
+        });
+      }
+      if (prefForm) {
+        prefForm.addEventListener("submit", () => {
+          if (prefStacked && stackedToggle) {
+            prefStacked.value = stackedToggle.checked ? "true" : "false";
+          }
+          if (prefLegend && legendToggle) {
+            prefLegend.value = legendToggle.checked ? "true" : "false";
+          }
+        });
+      }
+      if (pdfForm && chartImageInput) {
+        pdfForm.addEventListener("submit", () => {
+          chartImageInput.value = chart.toBase64Image("image/png", 1.0);
+          if (analyticsPdfBtn) {
+            analyticsPdfBtn.disabled = true;
+          }
+          if (analyticsPdfSpinner) {
+            analyticsPdfSpinner.classList.remove("d-none");
+          }
+        });
+      }
+      if (downloadPngBtn) {
+        downloadPngBtn.addEventListener("click", () => {
+          const link = document.createElement("a");
+          link.href = chart.toBase64Image("image/png", 1.0);
+          link.download = "pass_fail_chart.png";
+          link.click();
+        });
+      }
+      if (perClassPngButtons.length > 0) {
+        perClassPngButtons.forEach((button) => {
+          button.addEventListener("click", () => {
+            const className = button.getAttribute("data-class-name");
+            const image = buildClassChartImage(className);
+            if (!image) return;
+            const link = document.createElement("a");
+            link.href = image;
+            link.download = `${className.replace(/\s+/g, "_").toLowerCase()}_pass_fail_chart.png`;
+            link.click();
+          });
+        });
+      }
+      if (perClassForms.length > 0) {
+        perClassForms.forEach((form) => {
+          form.addEventListener("submit", () => {
+            const className = form.querySelector("input[name='class_name']").value;
+            const image = buildClassChartImage(className);
+            const imageInput = form.querySelector(".perClassChartImage");
+            if (imageInput) {
+              imageInput.value = image;
+            }
+            const button = form.querySelector(".perClassPdfBtn");
+            const spinner = form.querySelector(".perClassPdfSpinner");
+            if (button) {
+              button.disabled = true;
+            }
+            if (spinner) {
+              spinner.classList.remove("d-none");
+            }
+          });
+        });
+      }
+    }
+  });
+</script>
+{% endblock %}
+

@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% load static %}
+{% load custom_filters %}
+
+{% block content %}
+<div class="waec-card p-4 mb-3">
+  <h2 class="waec-title mb-1">Broadsheet</h2>
+  <div class="waec-subtitle">All students, all subjects, totals, positions, and subject averages</div>
+</div>
+{% if error %}
+<div class="alert alert-danger">{{ error }}</div>
+{% endif %}
+
+<form method="get" class="waec-card p-3 mb-4">
+  <div class="row g-2 align-items-end">
+    <div class="col-md-4">
+      <label class="form-label">Session</label>
+      <input type="text" class="form-control form-control-sm select-search" placeholder="Search session..." data-target="broadsheet-session-select">
+      <select id="broadsheet-session-select" name="session" class="form-select form-select-sm mt-1">
+        {% for session in sessions %}
+          <option value="{{ session.id }}" {% if selected_session and session.id == selected_session.id %}selected{% endif %}>{{ session.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-4">
+      <label class="form-label">Term</label>
+      <input type="text" class="form-control form-control-sm select-search" placeholder="Search term..." data-target="broadsheet-term-select">
+      <select id="broadsheet-term-select" name="term" class="form-select form-select-sm mt-1">
+        {% for term in terms %}
+          <option value="{{ term.id }}" {% if selected_term and term.id == selected_term.id %}selected{% endif %}>{{ term }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-4">
+      <button class="btn btn-dark btn-sm w-100">Filter</button>
+    </div>
+  </div>
+</form>
+
+<div class="waec-card p-3">
+  <div class="d-flex gap-2 mb-3">
+    <a class="btn btn-outline-dark btn-sm" href="{% url 'results:broadsheet_export' %}?session={{ selected_session.id }}&term={{ selected_term.id }}&export=csv">Export CSV</a>
+    <a class="btn btn-outline-dark btn-sm" href="{% url 'results:broadsheet_export' %}?session={{ selected_session.id }}&term={{ selected_term.id }}&export=pdf">Export PDF</a>
+  </div>
+  <div class="table-responsive">
+    <table class="table table-sm waec-table align-middle">
+      <thead>
+        <tr>
+          <th>Student</th>
+          {% for subject in subjects %}
+            <th class="text-center">{{ subject.name }}</th>
+          {% endfor %}
+          <th class="text-center">Total</th>
+          <th class="text-center">Average</th>
+          <th class="text-center">Position</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in students_data %}
+        <tr>
+          <td>{{ row.student.full_name }}</td>
+          {% for subject in subjects %}
+            <td class="text-center">{{ row.subjects|get_item:subject.id }}</td>
+          {% endfor %}
+          <td class="text-center fw-semibold">{{ row.total }}</td>
+          <td class="text-center fw-semibold">{{ row.average }}</td>
+          <td class="text-center fw-semibold">{{ row.rank_display }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="{{ subjects|length|add:4 }}">
+            <div class="empty-state">No results yet.</div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+      <tfoot>
+        <tr>
+          <th>Class Avg</th>
+          {% for subject in subjects %}
+            <th class="text-center">{{ subject_averages|get_item:subject.id }}</th>
+          {% endfor %}
+          <th></th>
+          <th></th>
+          <th></th>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+</div>
+{% endblock %}

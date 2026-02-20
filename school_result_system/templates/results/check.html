@@ -1,0 +1,53 @@
+﻿{% extends "base.html" %}
+{% load static %}
+{% block title %}Check Result{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-6">
+    <div class="waec-card p-4">
+      <h4 class="waec-title mb-1">Check Student Result</h4>
+      <div class="waec-subtitle mb-3">Enter admission number, session, and term.</div>
+
+      {% if error %}
+        <div class="alert alert-danger">{{ error }}</div>
+      {% endif %}
+
+      <form method="post" class="row g-3">
+        {% csrf_token %}
+        <div class="col-12">
+          <label class="form-label">Admission Number</label>
+          <input type="text" name="admission_number" class="form-control" placeholder="e.g SCH/2026/001" required>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Academic Session</label>
+          <input type="text" class="form-control form-control-sm select-search" placeholder="Search session..." data-target="check-session-select">
+          <select id="check-session-select" name="session" class="form-select form-select-sm mt-1" required>
+            <option value="">-- Select Session --</option>
+            {% for session in sessions %}
+              <option value="{{ session.id }}">{{ session.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Term</label>
+          <input type="text" class="form-control form-control-sm select-search" placeholder="Search term..." data-target="check-term-select">
+          <select id="check-term-select" name="term" class="form-select form-select-sm mt-1" required>
+            <option value="">-- Select Term --</option>
+            {% for term in terms %}
+              <option value="{{ term.id }}">{{ term }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-12">
+          <button type="submit" class="btn btn-dark w-100">Check Result</button>
+        </div>
+      </form>
+      <div class="text-center mt-3">
+        <a href="{% url 'results:parent_login' %}" class="btn btn-outline-dark btn-sm">Parent Portal Login</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+

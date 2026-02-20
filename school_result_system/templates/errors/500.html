@@ -1,0 +1,13 @@
+{% extends "results/base.html" %}
+{% block title %}Service Unavailable{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-6">
+    <div class="waec-card p-4 text-center">
+      <h3 class="waec-title mb-2">Temporary Error</h3>
+      <p class="text-muted mb-3">An internal error occurred. Please try again shortly.</p>
+      <a href="{% url 'accounts:teacher_login' %}" class="btn btn-dark btn-sm">Go to Login</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,266 @@
+:root {
+  --waec-ink: #0a0f1f;
+  --waec-ink-soft: #1f2937;
+  --waec-muted: #6b7280;
+  --waec-bg: #f3f4f6;
+  --waec-accent: #f59e0b;
+  --waec-accent-2: #2563eb;
+  --waec-border: #e5e7eb;
+  --waec-card: #ffffff;
+  --waec-glow: rgba(245, 158, 11, 0.2);
+}
+
+body {
+  font-family: "Space Grotesk", system-ui, -apple-system, "Segoe UI", sans-serif;
+  background: radial-gradient(1200px 600px at 10% -10%, #fde68a 0%, transparent 60%),
+    radial-gradient(800px 500px at 95% 0%, #93c5fd 0%, transparent 55%),
+    var(--waec-bg);
+  color: var(--waec-ink);
+  min-height: 100vh;
+  padding-top: 90px;
+}
+
+body[data-theme="dark"] {
+  --waec-ink: #e5e7eb;
+  --waec-ink-soft: #cbd5f5;
+  --waec-muted: #9ca3af;
+  --waec-bg: #0b1020;
+  --waec-accent: #f59e0b;
+  --waec-accent-2: #38bdf8;
+  --waec-border: #1f2937;
+  --waec-card: #111827;
+  --waec-glow: rgba(56, 189, 248, 0.25);
+  background: radial-gradient(1200px 600px at 10% -10%, rgba(245, 158, 11, 0.15) 0%, transparent 60%),
+    radial-gradient(800px 500px at 95% 0%, rgba(56, 189, 248, 0.2) 0%, transparent 55%),
+    var(--waec-bg);
+  color: var(--waec-ink);
+}
+
+.waec-card {
+  background: linear-gradient(180deg, #ffffff 0%, #fbfbfb 100%);
+  border: 1px solid var(--waec-border);
+  border-radius: 16px;
+  box-shadow: 0 14px 40px rgba(15, 23, 42, 0.08);
+}
+
+body[data-theme="dark"] .waec-card {
+  background: linear-gradient(180deg, #111827 0%, #0f172a 100%);
+  border-color: var(--waec-border);
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.5);
+}
+
+.waec-title {
+  font-family: "Fraunces", "Times New Roman", serif;
+  font-weight: 700;
+  color: var(--waec-ink);
+  letter-spacing: -0.02em;
+}
+
+.waec-subtitle {
+  color: var(--waec-muted);
+  font-size: 0.95rem;
+}
+
+.waec-btn {
+  background: var(--waec-ink);
+  color: #fff;
+  border-radius: 10px;
+  padding: 0.6rem 1rem;
+}
+
+.waec-table thead th {
+  background: #0f172a;
+  color: #fff;
+  text-transform: uppercase;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+}
+
+body[data-theme="dark"] .waec-table thead th {
+  background: #111827;
+}
+
+body[data-theme="dark"] .table {
+  color: var(--waec-ink);
+}
+
+.badge-pill {
+  background: #fff7ed;
+  color: #9a3412;
+  border: 1px solid #fed7aa;
+  padding: 0.3rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.search-input,
+.select-input {
+  border: 1px solid var(--waec-border);
+  border-radius: 10px;
+  padding: 0.4rem 0.6rem;
+}
+
+form input[type="text"],
+form input[type="number"],
+form input[type="password"],
+form input[type="email"],
+form select,
+form textarea {
+  display: block;
+  width: 100%;
+  padding: 0.6rem 0.8rem;
+  border: 1px solid var(--waec-border);
+  border-radius: 10px;
+  background: #fff;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+body[data-theme="dark"] form input[type="text"],
+body[data-theme="dark"] form input[type="number"],
+body[data-theme="dark"] form input[type="password"],
+body[data-theme="dark"] form input[type="email"],
+body[data-theme="dark"] form select,
+body[data-theme="dark"] form textarea {
+  background: #0f172a;
+  color: var(--waec-ink);
+  border-color: var(--waec-border);
+}
+
+body[data-theme="dark"] form input::placeholder,
+body[data-theme="dark"] form textarea::placeholder {
+  color: rgba(229, 231, 235, 0.6);
+}
+
+form input:focus,
+form select:focus,
+form textarea:focus {
+  border-color: var(--waec-accent);
+  box-shadow: 0 0 0 3px var(--waec-glow);
+  outline: none;
+}
+
+form label {
+  font-weight: 700;
+  font-size: 0.85rem;
+  margin-bottom: 0.25rem;
+}
+
+.navbar {
+  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.8);
+  border-bottom: 1px solid rgba(229, 231, 235, 0.8);
+}
+
+body[data-theme="dark"] .navbar {
+  background: rgba(17, 24, 39, 0.9) !important;
+  border-bottom-color: rgba(31, 41, 55, 0.8);
+}
+
+body[data-theme="dark"] .navbar.navbar-light .navbar-brand,
+body[data-theme="dark"] .navbar.navbar-light .navbar-brand:hover,
+body[data-theme="dark"] .navbar.navbar-light .navbar-brand:focus,
+body[data-theme="dark"] .navbar .navbar-brand .fw-bold,
+body[data-theme="dark"] .navbar .navbar-brand .text-muted,
+body[data-theme="dark"] .navbar .navbar-brand .small {
+  color: var(--waec-ink) !important;
+  opacity: 0.95;
+}
+
+body[data-theme="dark"] .navbar.bg-white {
+  background: rgba(17, 24, 39, 0.9) !important;
+}
+
+body[data-theme="dark"] .navbar .text-muted {
+  color: var(--waec-muted) !important;
+}
+
+body[data-theme="dark"] .navbar .navbar-brand img {
+  filter: brightness(1.1) contrast(1.1);
+}
+
+body[data-theme="dark"] .offcanvas {
+  background: linear-gradient(180deg, #0f172a 0%, #111827 100%);
+}
+
+body[data-theme="dark"] .offcanvas .list-group-item-action:hover {
+  background: rgba(56, 189, 248, 0.15);
+  border-color: rgba(56, 189, 248, 0.35);
+}
+
+.page-content {
+  margin-top: 10px;
+}
+
+.offcanvas {
+  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+  border-right: 1px solid var(--waec-border);
+}
+
+.offcanvas .list-group-item {
+  border: 1px solid transparent;
+  border-radius: 10px;
+  margin-bottom: 8px;
+}
+
+.offcanvas .list-group-item-action:hover {
+  background: #fff7ed;
+  border-color: #fed7aa;
+}
+
+.btn-dark {
+  background: linear-gradient(135deg, #0f172a 0%, #1f2937 100%);
+  border: none;
+  box-shadow: 0 10px 20px rgba(15, 23, 42, 0.15);
+}
+
+.btn-outline-dark {
+  border-color: #111827;
+  color: #111827;
+}
+
+body[data-theme="dark"] .btn-outline-dark {
+  border-color: #e5e7eb;
+  color: #e5e7eb;
+}
+
+.list-group-item.active {
+  background: linear-gradient(135deg, var(--waec-accent) 0%, #fb923c 100%);
+  border: none;
+  color: #1f2937;
+}
+
+.empty-state {
+  border: 1px dashed var(--waec-border);
+  border-radius: 12px;
+  padding: 16px;
+  text-align: center;
+  color: var(--waec-muted);
+  background: rgba(255, 255, 255, 0.6);
+}
+
+body[data-theme="dark"] .empty-state {
+  background: rgba(17, 24, 39, 0.6);
+}
+
+.loading-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
+.is-loading .loading-overlay {
+  opacity: 1;
+  pointer-events: all;
+}
+
+body[data-theme="dark"] .loading-overlay {
+  background: rgba(15, 23, 42, 0.7);
+}

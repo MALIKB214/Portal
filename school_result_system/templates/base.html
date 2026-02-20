@@ -1,0 +1,154 @@
+﻿{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}{{ school_name_display }}{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="{% static 'css/app.css' %}" rel="stylesheet">
+    {% if page_css_path %}
+    <link href="{% static page_css_path %}" rel="stylesheet">
+    {% endif %}
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom fixed-top">
+  <div class="container">
+    <a class="navbar-brand d-flex align-items-center gap-2" href="{% url 'home' %}">
+      <img src="{{ school_logo_url }}" alt="School Badge" width="40" height="40">
+      <div>
+        <div class="fw-bold">{{ school_name_display }}</div>
+        <div class="text-muted small">{{ school_motto_display }}</div>
+      </div>
+    </a>
+    <div class="d-flex align-items-center gap-2 ms-auto">
+      <button class="btn btn-outline-dark btn-sm d-inline-flex align-items-center gap-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#sideNav" aria-controls="sideNav">
+        <span class="navbar-toggler-icon"></span>
+        <span class="d-none d-md-inline">Menu</span>
+      </button>
+      <button class="btn btn-outline-dark btn-sm d-inline-flex align-items-center gap-2" type="button" id="themeToggle" aria-label="Toggle theme">
+        <i class="fa-solid fa-moon" id="themeToggleIcon"></i>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<div class="offcanvas offcanvas-start" tabindex="-1" id="sideNav" aria-labelledby="sideNavLabel">
+  <div class="offcanvas-header">
+    <h5 class="offcanvas-title" id="sideNavLabel">Navigation</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+  </div>
+  <div class="offcanvas-body">
+    <div class="list-group">
+      <a class="list-group-item list-group-item-action" href="{% url 'results:parent_login' %}">Parent Portal</a>
+      <a class="list-group-item list-group-item-action" href="{% url 'home' %}">Public Home</a>
+      {% if not request.user.is_authenticated %}
+      <a class="list-group-item list-group-item-action" href="{% url 'accounts:teacher_login' %}">Staff Login</a>
+      {% endif %}
+      {% if request.user.is_authenticated and request.user.is_teacher %}
+      <a class="list-group-item list-group-item-action" href="{% url 'accounts:teacher_dashboard' %}">Teacher Dashboard</a>
+      <a class="list-group-item list-group-item-action" href="{% url 'students:list' %}">Students</a>
+      <a class="list-group-item list-group-item-action" href="{% url 'results:list' %}">Results</a>
+      <a class="list-group-item list-group-item-action" href="{% url 'results:sheet' %}">Results Sheet</a>
+      <a class="list-group-item list-group-item-action" href="{% url 'results:add' %}">Add Result</a>
+      {% endif %}
+        {% if request.user.is_authenticated %}
+          {% if request.user.is_proprietor or request.user.is_admin %}
+        <a class="list-group-item list-group-item-action" href="{% url 'accounts:proprietor_dashboard' %}">Proprietor Dashboard</a>
+        <a class="list-group-item list-group-item-action" href="{% url 'results:broadsheet' %}">Broadsheet</a>
+        <a class="list-group-item list-group-item-action" href="{% url 'results:release_results' %}">Release Results</a>
+        <a class="list-group-item list-group-item-action" href="{% url 'billing:invoice_list' %}">Invoices</a>
+        <a class="list-group-item list-group-item-action" href="{% url 'accounts:setup_wizard' %}">Setup Wizard</a>
+        <a class="list-group-item list-group-item-action" href="{% url 'accounts:branding_settings' %}">Branding</a>
+          {% endif %}
+        {% endif %}
+    </div>
+    {% if request.user.is_authenticated %}
+    <div class="mt-3">
+      <a href="{% url 'accounts:teacher_logout' %}" class="btn btn-dark btn-sm w-100">Logout</a>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<main class="container py-4 page-content">
+    {% if messages %}
+      <div class="mb-3">
+        {% for message in messages %}
+          <div class="alert alert-{{ message.tags }} mb-2" role="alert">
+            {{ message }}
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+    {% block content %}{% endblock %}
+</main>
+
+<footer class="text-center text-muted py-4">
+    {{ school_name_display }} · Academic Excellence
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const themeToggle = document.getElementById("themeToggle");
+    const themeToggleIcon = document.getElementById("themeToggleIcon");
+    const storedTheme = localStorage.getItem("theme");
+    const prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+    const initialTheme = storedTheme || (prefersDark ? "dark" : "light");
+
+    const applyTheme = (theme) => {
+      document.body.setAttribute("data-theme", theme);
+      document.documentElement.setAttribute("data-bs-theme", theme);
+      if (themeToggleIcon) {
+        themeToggleIcon.className = theme === "dark" ? "fa-solid fa-sun" : "fa-solid fa-moon";
+      }
+    };
+
+    applyTheme(initialTheme);
+    if (themeToggle) {
+      themeToggle.addEventListener("click", () => {
+        const current = document.body.getAttribute("data-theme") || "light";
+        const next = current === "dark" ? "light" : "dark";
+        applyTheme(next);
+        localStorage.setItem("theme", next);
+      });
+    }
+
+    document.querySelectorAll(".select-search").forEach((input) => {
+      const targetId = input.getAttribute("data-target");
+      const select = document.getElementById(targetId);
+      if (!select) return;
+
+      const originalOptions = Array.from(select.options).map((opt) => ({
+        value: opt.value,
+        text: opt.text,
+        selected: opt.selected
+      }));
+
+      input.addEventListener("input", () => {
+        const q = input.value.toLowerCase().trim();
+        select.innerHTML = "";
+        originalOptions.forEach((opt) => {
+          if (!q || opt.text.toLowerCase().includes(q)) {
+            const option = document.createElement("option");
+            option.value = opt.value;
+            option.text = opt.text;
+            option.selected = opt.selected && (!q || opt.text.toLowerCase().includes(q));
+            select.appendChild(option);
+          }
+        });
+      });
+    });
+  });
+</script>
+
+{% block extra_scripts %}{% endblock %}
+
+</body>
+</html>

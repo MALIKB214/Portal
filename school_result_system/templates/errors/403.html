@@ -1,0 +1,13 @@
+{% extends "results/base.html" %}
+{% block title %}Access Denied{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-6">
+    <div class="waec-card p-4 text-center">
+      <h3 class="waec-title mb-2">Access Denied</h3>
+      <p class="text-muted mb-3">You do not have permission to open this page.</p>
+      <a href="{% url 'accounts:teacher_login' %}" class="btn btn-dark btn-sm">Go to Login</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

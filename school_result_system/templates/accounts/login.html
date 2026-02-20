@@ -1,0 +1,36 @@
+﻿{% extends "results/base.html" %}
+{% load static %}
+{% block title %}Teacher Login{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-5">
+    <div class="waec-card p-4">
+      <h4 class="text-center mb-2">Teacher Login</h4>
+      <p class="text-center text-muted small mb-4">Sign in to manage your class records.</p>
+
+      {% for message in messages %}
+        <div class="alert alert-danger text-center">{{ message }}</div>
+      {% endfor %}
+
+      <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+          <label class="form-label">Username</label>
+          <input type="text" name="username" class="form-control" placeholder="e.g. teacher01" required>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Password</label>
+          <input type="password" name="password" class="form-control" placeholder="********" required>
+        </div>
+        <button class="btn btn-dark w-100">Login</button>
+      </form>
+      <div class="text-center mt-3">
+        <a href="{% url 'home' %}" class="btn btn-outline-dark btn-sm">Home</a>
+        <a href="{% url 'results:parent_login' %}" class="btn btn-outline-dark btn-sm">Parent Portal</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+

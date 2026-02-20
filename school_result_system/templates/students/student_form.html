@@ -1,0 +1,22 @@
+﻿{% extends "base.html" %}
+{% load static %}
+{% block title %}Student Form{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-7">
+    <div class="waec-card p-4">
+      <h4 class="waec-title mb-1">Student Details</h4>
+      <div class="waec-subtitle mb-3">Enter student biodata and admission information.</div>
+      <form method="post" class="row g-3">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <div class="col-12">
+          <button type="submit" class="btn btn-dark w-100">Save Student</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
