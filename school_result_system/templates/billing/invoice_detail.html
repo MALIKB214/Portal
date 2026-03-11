@@ -6,6 +6,9 @@
 <div class="waec-card p-4 mb-4">
   <h3 class="waec-title mb-1">Invoice #{{ invoice.id }}</h3>
   <div class="waec-subtitle">{{ invoice.student.full_name }} | {{ invoice.session }}{% if invoice.term %} - {{ invoice.term }}{% endif %}</div>
+  {% if invoice.status == "void" %}
+  <span class="badge text-bg-danger mt-2">Voided</span>
+  {% endif %}
 </div>
 
 <div class="row g-4">
@@ -37,6 +40,7 @@
         </table>
       </div>
 
+      {% if can_record_money %}
       <form method="post" class="row g-3">
         {% csrf_token %}
         <input type="hidden" name="action" value="add_item">
@@ -45,6 +49,7 @@
           <button class="btn btn-dark">Add Item</button>
         </div>
       </form>
+      {% endif %}
     </div>
   </div>
 
@@ -77,6 +82,9 @@
                 {% else %}
                   <span class="badge text-bg-warning">Pending</span>
                 {% endif %}
+                {% if payment.is_reversed %}
+                  <span class="badge text-bg-dark">Reversed</span>
+                {% endif %}
               </td>
               <td>
                 {% if payment.approval_status == "approved" or payment.approval_status == "rejected" %}
@@ -87,13 +95,21 @@
               </td>
               <td class="text-end">
                 <a class="btn btn-outline-dark btn-sm" href="{% url 'billing:receipt' payment.id %}">Receipt</a>
-                {% if payment.approval_status == "pending" %}
+                {% if payment.approval_status == "pending" and can_approve_payment and not payment.is_reversed %}
                   <form method="post" class="d-inline-flex flex-wrap gap-2 justify-content-end align-items-center mt-2">
                     {% csrf_token %}
                     <input type="hidden" name="payment_id" value="{{ payment.id }}">
                     <input type="text" name="approval_note" class="form-control form-control-sm" placeholder="Approval note (optional)">
                     <button class="btn btn-success btn-sm" name="action" value="approve_payment">Approve</button>
                     <button class="btn btn-danger btn-sm" name="action" value="reject_payment">Reject</button>
+                  </form>
+                {% endif %}
+                {% if payment.approval_status == "approved" and not payment.is_reversed and can_reverse_payment %}
+                  <form method="post" class="d-inline-flex flex-wrap gap-2 justify-content-end align-items-center mt-2">
+                    {% csrf_token %}
+                    <input type="hidden" name="payment_id" value="{{ payment.id }}">
+                    <input type="text" name="reversal_note" class="form-control form-control-sm" placeholder="Reversal note (required)">
+                    <button class="btn btn-outline-danger btn-sm" name="action" value="reverse_payment">Reverse</button>
                   </form>
                 {% endif %}
               </td>
@@ -113,6 +129,7 @@
         <div class="col-md-4"><div class="badge-pill">Balance: {{ invoice.balance }}</div></div>
       </div>
 
+      {% if can_record_money %}
       <form method="post" class="row g-3">
         {% csrf_token %}
         <input type="hidden" name="action" value="add_payment">
@@ -121,7 +138,54 @@
           <button class="btn btn-dark">Record Payment</button>
         </div>
       </form>
+      {% endif %}
+      {% if can_void_invoice %}
+      <hr>
+      <form method="post" class="row g-2 align-items-end">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="void_invoice">
+        <div class="col-md-8">
+          <label class="form-label">Void Note</label>
+          <input type="text" name="void_note" class="form-control form-control-sm" placeholder="Reason for voiding invoice">
+        </div>
+        <div class="col-md-4">
+          <button class="btn btn-outline-danger btn-sm w-100" {% if invoice.status == "void" %}disabled{% endif %}>Void Invoice</button>
+        </div>
+      </form>
+      {% endif %}
     </div>
+  </div>
+</div>
+
+<div class="waec-card p-3 mt-4">
+  <h5 class="mb-2">Finance Audit Trail</h5>
+  <div class="table-responsive">
+    <table class="table table-sm waec-table align-middle">
+      <thead>
+        <tr>
+          <th>Time</th>
+          <th>Event</th>
+          <th>Amount Delta</th>
+          <th>Actor</th>
+          <th>Note</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for event in finance_events %}
+        <tr>
+          <td>{{ event.created_at }}</td>
+          <td>{{ event.get_event_type_display }}</td>
+          <td>{{ event.amount_delta }}</td>
+          <td>{{ event.performed_by|default:"-" }}</td>
+          <td>{{ event.note|default:"-" }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="5" class="text-center text-muted py-3">No finance events recorded yet.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
   </div>
 </div>
 {% endblock %}

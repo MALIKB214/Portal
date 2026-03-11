@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+{% block title %}Schedules{% endblock %}
+
+{% block content %}
+<div class="waec-card p-4 mb-4">
+  <div class="d-flex justify-content-between align-items-center">
+    <div>
+      <h2 class="waec-title mb-1">Schedule Manager</h2>
+      <div class="waec-subtitle">Enable or disable background jobs.</div>
+    </div>
+    <a class="btn btn-outline-dark btn-sm" href="{% url 'accounts:system_health' %}">System Health</a>
+  </div>
+</div>
+
+<div class="waec-card p-3">
+  <div class="table-responsive">
+    <table class="table table-sm waec-table align-middle">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Task</th>
+          <th>Schedule</th>
+          <th>Options</th>
+          <th>Last Run</th>
+          <th>Status</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for task in tasks %}
+        <tr>
+          <td>{{ task.name }}</td>
+          <td class="text-muted">{{ task.task }}</td>
+          <td>
+            {% if task.interval %}Every {{ task.interval.every }} {{ task.interval.period }}{% endif %}
+            {% if task.crontab %}Cron: {{ task.crontab }}{% endif %}
+            {% if task.solar %}Solar: {{ task.solar }}{% endif %}
+            {% if task.clocked %}Clocked: {{ task.clocked.clocked_time }}{% endif %}
+          </td>
+          <td>
+            {% if task.task == "results.tasks.send_release_reminders_task" or task.task == "billing.tasks.send_weekly_finance_summary_task" %}
+              {% with opts=task.opts %}
+              <form method="post" class="d-flex flex-column gap-2">
+                {% csrf_token %}
+                <input type="hidden" name="task_id" value="{{ task.id }}">
+                <input type="hidden" name="action" value="save_options">
+                <select name="session_id" class="form-select form-select-sm">
+                  <option value="">All Sessions</option>
+                  {% for s in sessions %}
+                    <option value="{{ s.id }}" {% if opts.session_id == s.id %}selected{% endif %}>{{ s }}</option>
+                  {% endfor %}
+                </select>
+                <select name="term_id" class="form-select form-select-sm">
+                  <option value="">All Terms</option>
+                  {% for t in terms %}
+                    <option value="{{ t.id }}" {% if opts.term_id == t.id %}selected{% endif %}>{{ t }}</option>
+                  {% endfor %}
+                </select>
+                {% if task.task == "billing.tasks.send_weekly_finance_summary_task" %}
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" name="include_per_class" id="include_per_class_{{ task.id }}" {% if opts.include_per_class %}checked{% endif %}>
+                  <label class="form-check-label small" for="include_per_class_{{ task.id }}">Include per-class breakdown</label>
+                </div>
+                {% endif %}
+                <button class="btn btn-sm btn-outline-dark" type="submit">Save Options</button>
+              </form>
+              {% endwith %}
+            {% else %}
+              <span class="text-muted small">-</span>
+            {% endif %}
+          </td>
+          <td>{{ task.last_run_at|default:"-" }}</td>
+          <td>
+            {% if task.enabled %}
+              <span class="badge bg-success">Enabled</span>
+            {% else %}
+              <span class="badge bg-secondary">Disabled</span>
+            {% endif %}
+          </td>
+          <td class="text-end">
+            <form method="post" class="d-inline">
+              {% csrf_token %}
+              <input type="hidden" name="task_id" value="{{ task.id }}">
+              <input type="hidden" name="action" value="toggle">
+              <button class="btn btn-sm btn-outline-dark" type="submit">
+                {% if task.enabled %}Disable{% else %}Enable{% endif %}
+              </button>
+            </form>
+            <form method="post" class="d-inline ms-1">
+              {% csrf_token %}
+              <input type="hidden" name="task_id" value="{{ task.id }}">
+              <input type="hidden" name="action" value="run_now">
+              {% if task.task == "results.tasks.send_release_reminders_task" or task.task == "billing.tasks.send_weekly_finance_summary_task" %}
+              <div class="form-check form-check-inline small me-1">
+                <input class="form-check-input" type="checkbox" name="send_to_me" id="send_to_me_{{ task.id }}" checked>
+                <label class="form-check-label" for="send_to_me_{{ task.id }}">Send to me only</label>
+              </div>
+              {% endif %}
+              <button class="btn btn-sm btn-dark" type="submit">Run Now</button>
+            </form>
+            {% if task.task == "results.tasks.send_release_reminders_task" or task.task == "billing.tasks.send_weekly_finance_summary_task" %}
+            <form method="post" class="d-inline ms-1">
+              {% csrf_token %}
+              <input type="hidden" name="task_id" value="{{ task.id }}">
+              <input type="hidden" name="action" value="test_email">
+              <button class="btn btn-sm btn-outline-dark" type="submit">Test Email</button>
+            </form>
+            {% endif %}
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="7" class="text-center text-muted py-3">No schedules configured.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

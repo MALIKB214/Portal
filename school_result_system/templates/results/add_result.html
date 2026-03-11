@@ -7,7 +7,7 @@
   <div class="col-lg-7">
     <div class="waec-card p-4">
       <h4 class="waec-title mb-1">Add Result</h4>
-      <div class="waec-subtitle mb-3">Fill in CA scores, project, and exam score.</div>
+      <div class="waec-subtitle mb-3">Fill in CA1 (20), CA2 (20), and exam (60).</div>
       {% if form.non_field_errors %}
         <div class="alert alert-danger">
           {% for error in form.non_field_errors %}
@@ -42,26 +42,16 @@
           {% if form.term.errors %}<div class="text-danger small mt-1">{{ form.term.errors|join:", " }}</div>{% endif %}
         </div>
         <div class="col-md-4">
-          <label class="form-label">CA1 (10)</label>
+          <label class="form-label">CA1 (20)</label>
           {{ form.ca1 }}
           {% if form.ca1.errors %}<div class="text-danger small mt-1">{{ form.ca1.errors|join:", " }}</div>{% endif %}
         </div>
         <div class="col-md-4">
-          <label class="form-label">CA2 (10)</label>
+          <label class="form-label">CA2 (20)</label>
           {{ form.ca2 }}
           {% if form.ca2.errors %}<div class="text-danger small mt-1">{{ form.ca2.errors|join:", " }}</div>{% endif %}
         </div>
         <div class="col-md-4">
-          <label class="form-label">CA3 (10)</label>
-          {{ form.ca3 }}
-          {% if form.ca3.errors %}<div class="text-danger small mt-1">{{ form.ca3.errors|join:", " }}</div>{% endif %}
-        </div>
-        <div class="col-md-6">
-          <label class="form-label">Project (10)</label>
-          {{ form.project }}
-          {% if form.project.errors %}<div class="text-danger small mt-1">{{ form.project.errors|join:", " }}</div>{% endif %}
-        </div>
-        <div class="col-md-6">
           <label class="form-label">Exam (60)</label>
           {{ form.exam }}
           {% if form.exam.errors %}<div class="text-danger small mt-1">{{ form.exam.errors|join:", " }}</div>{% endif %}

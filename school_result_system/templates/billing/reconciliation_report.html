@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block title %}Billing Reconciliation{% endblock %}
+
+{% block content %}
+<div class="waec-card p-4 mb-3">
+  <h2 class="waec-title mb-1">Billing Reconciliation</h2>
+  <div class="waec-subtitle">Invoice, payment, reversal and approval-chain report.</div>
+</div>
+
+<form method="get" class="waec-card p-3 mb-3">
+  <div class="row g-2 align-items-end">
+    <div class="col-md-3">
+      <label class="form-label">Session</label>
+      <select name="session" class="form-select form-select-sm">
+        {% for s in sessions %}
+          <option value="{{ s.id }}" {% if selected_session and s.id == selected_session.id %}selected{% endif %}>{{ s }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-3">
+      <label class="form-label">Term</label>
+      <select name="term" class="form-select form-select-sm">
+        {% for t in terms %}
+          <option value="{{ t.id }}" {% if selected_term and t.id == selected_term.id %}selected{% endif %}>{{ t }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-3">
+      <label class="form-label">Class</label>
+      <select name="class_name" class="form-select form-select-sm">
+        <option value="">All Classes</option>
+        {% for cls in class_names %}
+          <option value="{{ cls }}" {% if selected_class_name == cls %}selected{% endif %}>{{ cls }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-3 d-grid">
+      <button class="btn btn-dark btn-sm">Apply</button>
+    </div>
+  </div>
+</form>
+
+<div class="waec-card p-3 mb-3">
+  <div class="d-flex gap-2 flex-wrap">
+    <span class="badge text-bg-dark">Billed: {{ totals.billed }}</span>
+    <span class="badge text-bg-success">Approved: {{ totals.approved }}</span>
+    <span class="badge text-bg-warning">Pending: {{ totals.pending }}</span>
+    <span class="badge text-bg-secondary">Rejected: {{ totals.rejected }}</span>
+    <span class="badge text-bg-danger">Reversed: {{ totals.reversed }}</span>
+    <span class="badge text-bg-primary">Balance: {{ totals.balance }}</span>
+  </div>
+  <a class="btn btn-outline-dark btn-sm mt-2" href="?session={{ selected_session.id }}&term={{ selected_term.id }}&class_name={{ selected_class_name }}&export=csv">Export CSV</a>
+  <a class="btn btn-outline-dark btn-sm mt-2" href="?session={{ selected_session.id }}&term={{ selected_term.id }}&class_name={{ selected_class_name }}&export=pdf">Export PDF</a>
+</div>
+
+<div class="waec-card p-3">
+  <div class="table-responsive">
+    <table class="table table-sm waec-table align-middle">
+      <thead>
+        <tr>
+          <th>Invoice</th>
+          <th>Student</th>
+          <th>Class</th>
+          <th>Status</th>
+          <th>Billed</th>
+          <th>Approved</th>
+          <th>Pending</th>
+          <th>Rejected</th>
+          <th>Reversed</th>
+          <th>Balance</th>
+          <th>Approval Chain</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in rows %}
+        <tr>
+          <td>#{{ row.invoice.id }}</td>
+          <td>{{ row.invoice.student.full_name }}</td>
+          <td>{{ row.invoice.student.class_name }}</td>
+          <td>{{ row.invoice.status }}</td>
+          <td>{{ row.billed }}</td>
+          <td>{{ row.approved }}</td>
+          <td>{{ row.pending }}</td>
+          <td>{{ row.rejected }}</td>
+          <td>{{ row.reversed }}</td>
+          <td>{{ row.balance }}</td>
+          <td class="small text-muted">{{ row.approval_chain|default:"-" }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="11" class="text-center text-muted py-3">No reconciliation data.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

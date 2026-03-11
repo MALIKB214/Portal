@@ -22,8 +22,6 @@
                         <th class="px-4 py-2 border text-left">Subject</th>
                         <th class="px-4 py-2 border">CA1</th>
                         <th class="px-4 py-2 border">CA2</th>
-                        <th class="px-4 py-2 border">CA3</th>
-                        <th class="px-4 py-2 border">Project</th>
                         <th class="px-4 py-2 border">Exam</th>
                         <th class="px-4 py-2 border">Total</th>
                         <th class="px-4 py-2 border">Grade</th>
@@ -35,8 +33,6 @@
                         <td class="px-4 py-2 border text-left whitespace-nowrap">{{ result.subject.name }}</td>
                         <td class="px-4 py-2 border">{{ result.ca1 }}</td>
                         <td class="px-4 py-2 border">{{ result.ca2 }}</td>
-                        <td class="px-4 py-2 border">{{ result.ca3 }}</td>
-                        <td class="px-4 py-2 border">{{ result.project }}</td>
                         <td class="px-4 py-2 border">{{ result.exam }}</td>
                         <td class="px-4 py-2 border font-semibold">{{ result.total_score }}</td>
                         <td class="px-4 py-2 border font-bold">{{ result.grade }}</td>
@@ -57,8 +53,6 @@
             <p><strong>Subject:</strong> {{ result.subject.name }}</p>
             <p><strong>CA1:</strong> {{ result.ca1 }}</p>
             <p><strong>CA2:</strong> {{ result.ca2 }}</p>
-            <p><strong>CA3:</strong> {{ result.ca3 }}</p>
-            <p><strong>Project:</strong> {{ result.project }}</p>
             <p><strong>Exam:</strong> {{ result.exam }}</p>
             <p><strong>Total:</strong> {{ result.total_score }}</p>
             <p><strong>Grade:</strong> {{ result.grade }}</p>

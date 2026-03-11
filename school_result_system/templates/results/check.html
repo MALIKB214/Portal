@@ -17,7 +17,7 @@
         {% csrf_token %}
         <div class="col-12">
           <label class="form-label">Admission Number</label>
-          <input type="text" name="admission_number" class="form-control" placeholder="e.g SCH/2026/001" required>
+          <input type="text" name="admission_number" class="form-control" placeholder="e.g SCH/2026/001" value="{{ admission_number|default:'' }}" required>
         </div>
         <div class="col-md-6">
           <label class="form-label">Academic Session</label>
@@ -25,7 +25,7 @@
           <select id="check-session-select" name="session" class="form-select form-select-sm mt-1" required>
             <option value="">-- Select Session --</option>
             {% for session in sessions %}
-              <option value="{{ session.id }}">{{ session.name }}</option>
+              <option value="{{ session.id }}" {% if selected_session and session.id == selected_session.id %}selected{% endif %}>{{ session.name }}</option>
             {% endfor %}
           </select>
         </div>
@@ -33,9 +33,11 @@
           <label class="form-label">Term</label>
           <input type="text" class="form-control form-control-sm select-search" placeholder="Search term..." data-target="check-term-select">
           <select id="check-term-select" name="term" class="form-select form-select-sm mt-1" required>
-            <option value="">-- Select Term --</option>
+            <option value="">
+              {% if terms %}-- Select Released Term --{% else %}-- No Released Term Yet --{% endif %}
+            </option>
             {% for term in terms %}
-              <option value="{{ term.id }}">{{ term }}</option>
+              <option value="{{ term.id }}" {% if selected_term and term.id == selected_term.id %}selected{% endif %}>{{ term }}</option>
             {% endfor %}
           </select>
         </div>

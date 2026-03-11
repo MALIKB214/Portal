@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% block title %}Bursar Dashboard{% endblock %}
+
+{% block content %}
+<div class="waec-card p-4 mb-4">
+  <div class="d-flex justify-content-between align-items-center">
+    <div>
+      <h2 class="waec-title mb-1">Bursar Dashboard</h2>
+      <div class="waec-subtitle">Collections, outstanding fees, and approvals</div>
+    </div>
+    <div class="d-flex gap-2">
+      <a href="{% url 'billing:invoice_list' %}" class="btn btn-outline-dark btn-sm">Open Invoices</a>
+      <a href="{% url 'billing:reconciliation_report' %}" class="btn btn-outline-dark btn-sm">Reconciliation</a>
+    </div>
+  </div>
+</div>
+
+<form method="get" class="waec-card p-3 mb-4">
+  <div class="row g-2 align-items-end">
+    <div class="col-md-5">
+      <label class="form-label">Session</label>
+      <input type="text" class="form-control form-control-sm select-search" placeholder="Search session..." data-target="finance-session-select">
+      <select id="finance-session-select" name="session" class="form-select form-select-sm">
+        {% for s in sessions %}
+          <option value="{{ s.id }}" {% if selected_session and s.id == selected_session.id %}selected{% endif %}>{{ s }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-5">
+      <label class="form-label">Term</label>
+      <input type="text" class="form-control form-control-sm select-search" placeholder="Search term..." data-target="finance-term-select">
+      <select id="finance-term-select" name="term" class="form-select form-select-sm">
+        {% for t in terms %}
+          <option value="{{ t.id }}" {% if selected_term and t.id == selected_term.id %}selected{% endif %}>{{ t }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-2">
+      <button class="btn btn-dark btn-sm w-100">Apply</button>
+    </div>
+  </div>
+</form>
+
+<div class="row g-3 mb-4">
+  <div class="col-md-3"><div class="waec-card p-3"><div class="text-muted small">Total Revenue</div><div class="fs-4 fw-bold">{{ approved_revenue }}</div></div></div>
+  <div class="col-md-3"><div class="waec-card p-3"><div class="text-muted small">Pending Approvals</div><div class="fs-4 fw-bold">{{ pending_amount }}</div></div></div>
+  <div class="col-md-3"><div class="waec-card p-3"><div class="text-muted small">Outstanding Fees</div><div class="fs-4 fw-bold">{{ total_outstanding }}</div></div></div>
+  <div class="col-md-3"><div class="waec-card p-3"><div class="text-muted small">Students Owing</div><div class="fs-4 fw-bold">{{ owing_count }}</div></div></div>
+</div>
+
+<div class="row g-4">
+  <div class="col-lg-6">
+    <div class="waec-card p-3">
+      <h5 class="mb-2">Recent Payments</h5>
+      <div class="table-responsive">
+        <table class="table table-sm waec-table align-middle">
+          <thead><tr><th>Receipt</th><th>Student</th><th>Amount</th><th>Status</th></tr></thead>
+          <tbody>
+            {% for payment in recent_payments %}
+            <tr>
+              <td>{{ payment.receipt_number }}</td>
+              <td>{{ payment.invoice.student.full_name }}</td>
+              <td>{{ payment.amount }}</td>
+              <td>{{ payment.get_approval_status_display }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="4" class="text-center text-muted">No payments yet.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-6">
+    <div class="waec-card p-3">
+      <h5 class="mb-2">Outstanding by Class</h5>
+      <div class="table-responsive">
+        <table class="table table-sm waec-table align-middle">
+          <thead><tr><th>Class</th><th>Outstanding</th></tr></thead>
+          <tbody>
+            {% for row in class_outstanding_rows %}
+            <tr><td>{{ row.class_name }}</td><td>{{ row.balance }}</td></tr>
+            {% empty %}
+            <tr><td colspan="2" class="text-center text-muted">No outstanding data.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

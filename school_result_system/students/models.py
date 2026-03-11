@@ -11,6 +11,13 @@ class Student(models.Model):
     last_name = models.CharField(max_length=100, null=True, blank=True)
     admission_number = models.CharField(max_length=100, unique=True)
     gender = models.CharField(max_length=1, choices=GENDER_CHOICES)
+    school_class = models.ForeignKey(
+        SchoolClass,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="students",
+    )
     class_name = models.CharField(max_length=50, null=True, blank=True)
     email = models.EmailField(blank=True)
     parent_email = models.EmailField(blank=True)
@@ -23,3 +30,12 @@ class Student(models.Model):
     def full_name(self):
         last_name = self.last_name or ""
         return f"{self.first_name} {last_name}".strip()
+
+    def save(self, *args, **kwargs):
+        if self.school_class and not self.class_name:
+            self.class_name = self.school_class.name
+        if not self.school_class and self.class_name:
+            existing_class = SchoolClass.objects.filter(name=self.class_name).first()
+            if existing_class:
+                self.school_class = existing_class
+        super().save(*args, **kwargs)

@@ -16,6 +16,7 @@
     {% endif %}
 </head>
 <body>
+<div id="globalLoadingBar" class="global-loading-bar" aria-hidden="true"></div>
 
 <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom fixed-top">
   <div class="container">
@@ -50,23 +51,37 @@
       {% if not request.user.is_authenticated %}
       <a class="list-group-item list-group-item-action" href="{% url 'accounts:teacher_login' %}">Staff Login</a>
       {% endif %}
-      {% if request.user.is_authenticated and request.user.is_teacher %}
+      {% if request.user.is_authenticated %}
+      <a class="list-group-item list-group-item-action" href="{% url 'accounts:staff_notifications' %}">Staff Notifications</a>
+      {% endif %}
+      {% if can_view_teacher_menu %}
       <a class="list-group-item list-group-item-action" href="{% url 'accounts:teacher_dashboard' %}">Teacher Dashboard</a>
+      {% if can_manage_students_menu %}
       <a class="list-group-item list-group-item-action" href="{% url 'students:list' %}">Students</a>
+      {% endif %}
       <a class="list-group-item list-group-item-action" href="{% url 'results:list' %}">Results</a>
       <a class="list-group-item list-group-item-action" href="{% url 'results:sheet' %}">Results Sheet</a>
+      {% if can_enter_results_menu %}
       <a class="list-group-item list-group-item-action" href="{% url 'results:add' %}">Add Result</a>
       {% endif %}
+      {% endif %}
         {% if request.user.is_authenticated %}
-          {% if request.user.is_proprietor or request.user.is_admin %}
+          {% if can_view_proprietor_menu %}
         <a class="list-group-item list-group-item-action" href="{% url 'accounts:proprietor_dashboard' %}">Proprietor Dashboard</a>
         <a class="list-group-item list-group-item-action" href="{% url 'results:broadsheet' %}">Broadsheet</a>
+        {% if can_release_results_menu %}
         <a class="list-group-item list-group-item-action" href="{% url 'results:release_results' %}">Release Results</a>
-        <a class="list-group-item list-group-item-action" href="{% url 'billing:invoice_list' %}">Invoices</a>
+        <a class="list-group-item list-group-item-action" href="{% url 'results:snapshot_verification' %}">Snapshot Verification</a>
+        {% endif %}
         <a class="list-group-item list-group-item-action" href="{% url 'accounts:setup_wizard' %}">Setup Wizard</a>
         <a class="list-group-item list-group-item-action" href="{% url 'accounts:branding_settings' %}">Branding</a>
+        <a class="list-group-item list-group-item-action" href="{% url 'accounts:role_permission_matrix' %}">Permission Matrix</a>
           {% endif %}
         {% endif %}
+      {% if can_view_finance_menu %}
+      <a class="list-group-item list-group-item-action" href="{% url 'billing:dashboard' %}">Finance / Bursar</a>
+      <a class="list-group-item list-group-item-action" href="{% url 'billing:reconciliation_report' %}">Reconciliation</a>
+      {% endif %}
     </div>
     {% if request.user.is_authenticated %}
     <div class="mt-3">
@@ -77,6 +92,12 @@
 </div>
 
 <main class="container py-4 page-content">
+    <div id="pageBackWrap" class="page-back d-none">
+      <button id="pageBackBtn" class="btn btn-outline-dark btn-sm d-inline-flex align-items-center gap-2" type="button">
+        <i class="fa-solid fa-arrow-left"></i>
+        <span>Back</span>
+      </button>
+    </div>
     {% if messages %}
       <div class="mb-3">
         {% for message in messages %}
@@ -145,6 +166,67 @@
         });
       });
     });
+
+    document.querySelectorAll("form").forEach((form) => {
+      const method = (form.getAttribute("method") || "get").toLowerCase();
+      if (method !== "post") return;
+      form.addEventListener("submit", () => {
+        form.classList.add("is-submitting");
+        form.querySelectorAll("button[type='submit'], input[type='submit']").forEach((btn) => {
+          btn.disabled = true;
+          if (btn.tagName === "BUTTON" && !btn.dataset.originalHtml) {
+            btn.dataset.originalHtml = btn.innerHTML;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Processing...';
+          }
+        });
+      });
+    });
+
+    const loadingBar = document.getElementById("globalLoadingBar");
+    if (loadingBar) {
+      loadingBar.classList.add("is-visible");
+      window.setTimeout(() => loadingBar.classList.remove("is-visible"), 250);
+    }
+
+    const backWrap = document.getElementById("pageBackWrap");
+    const backBtn = document.getElementById("pageBackBtn");
+    if (backWrap && backBtn) {
+      const sameOrigin = document.referrer && new URL(document.referrer).origin === window.location.origin;
+      const navPaths = [
+        "{% url 'home' %}",
+        "{% url 'results:parent_login' %}",
+        "{% url 'accounts:teacher_login' %}",
+        "{% url 'accounts:teacher_dashboard' %}",
+        "{% url 'students:list' %}",
+        "{% url 'results:list' %}",
+        "{% url 'results:sheet' %}",
+        "{% url 'results:add' %}",
+        "{% url 'accounts:proprietor_dashboard' %}",
+        "{% url 'results:broadsheet' %}",
+        "{% url 'results:release_results' %}",
+        "{% url 'results:snapshot_verification' %}",
+        "{% url 'accounts:setup_wizard' %}",
+        "{% url 'accounts:branding_settings' %}",
+        "{% url 'accounts:role_permission_matrix' %}",
+        "{% url 'billing:dashboard' %}",
+        "{% url 'billing:reconciliation_report' %}",
+        "{% url 'accounts:staff_notifications' %}"
+      ].map((path) => path.replace(/\/+$/, ""));
+      const noBackPrefixes = [
+        "{% url 'accounts:teacher_login' %}",
+        "{% url 'results:parent_login' %}",
+        "{% url 'results:parent_password_reset' %}",
+        "{% url 'results:parent_password_reset_done' %}",
+        "{% url 'results:parent_password_reset_complete' %}"
+      ].map((path) => path.replace(/\/+$/, ""));
+      const currentPath = window.location.pathname.replace(/\/+$/, "");
+      const isNavPage = navPaths.includes(currentPath);
+      const noBackPage = noBackPrefixes.some((prefix) => currentPath.startsWith(prefix));
+      if (!isNavPage && !noBackPage && window.history.length > 1 && sameOrigin) {
+        backWrap.classList.remove("d-none");
+        backBtn.addEventListener("click", () => window.history.back());
+      }
+    }
   });
 </script>
 

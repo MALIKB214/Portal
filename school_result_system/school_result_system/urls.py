@@ -20,10 +20,14 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.views.generic.base import RedirectView
 from accounts.views import landing_page
+from .views import health_live, health_ready
 
 urlpatterns = [
     path("", landing_page, name="home"),
     path("favicon.ico", RedirectView.as_view(url="/static/img/school_badge.svg", permanent=False)),
+    path("result/", RedirectView.as_view(url="/results/", permanent=False)),
+    path("health/live/", health_live, name="health_live"),
+    path("health/ready/", health_ready, name="health_ready"),
     path("admin/", admin.site.urls),
     path("accounts/", include("accounts.urls")),
     path("results/", include("results.urls")),
@@ -32,7 +36,7 @@ urlpatterns = [
     path("api/", include("api.urls")),
 ]
 
-if settings.DEBUG:
+if settings.DEBUG or getattr(settings, "SERVE_STATIC", False) or getattr(settings, "FORCE_HTTP", False):
     urlpatterns += static(settings.STATIC_URL, document_root=settings.BASE_DIR / "static")
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

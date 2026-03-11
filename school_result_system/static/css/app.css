@@ -20,6 +20,24 @@ body {
   padding-top: 90px;
 }
 
+.global-loading-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 3px;
+  width: 0;
+  z-index: 2000;
+  background: linear-gradient(90deg, var(--waec-accent-2), var(--waec-accent));
+  box-shadow: 0 0 10px var(--waec-glow);
+  transition: width 0.25s ease, opacity 0.25s ease;
+  opacity: 0;
+}
+
+.global-loading-bar.is-visible {
+  width: 100%;
+  opacity: 1;
+}
+
 body[data-theme="dark"] {
   --waec-ink: #e5e7eb;
   --waec-ink-soft: #cbd5f5;
@@ -192,6 +210,15 @@ body[data-theme="dark"] .offcanvas .list-group-item-action:hover {
   margin-top: 10px;
 }
 
+.page-back {
+  margin-bottom: 12px;
+}
+
+.page-back .btn {
+  border-radius: 999px;
+  padding: 0.3rem 0.9rem;
+}
+
 .offcanvas {
   background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
   border-right: 1px solid var(--waec-border);
@@ -254,6 +281,11 @@ body[data-theme="dark"] .empty-state {
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.2s ease;
+}
+
+form.is-submitting {
+  opacity: 0.9;
+  pointer-events: none;
 }
 
 .is-loading .loading-overlay {

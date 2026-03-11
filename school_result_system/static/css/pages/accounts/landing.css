@@ -17,13 +17,33 @@
   background: rgba(255, 255, 255, 0.7);
 }
 
-.pricing-card {
+.landing-card {
   border: 1px solid var(--waec-border);
   border-radius: 12px;
   background: linear-gradient(180deg, #ffffff, #f8fafc);
 }
 
+.value-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.7rem;
+  border-radius: 999px;
+  border: 1px solid var(--waec-border);
+  background: rgba(255, 255, 255, 0.8);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.gallery-card {
+  border: 1px solid var(--waec-border);
+  border-radius: 12px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(248, 250, 252, 0.8));
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+}
+
 body[data-theme="dark"] .feature-item,
-body[data-theme="dark"] .pricing-card {
+body[data-theme="dark"] .landing-card,
+body[data-theme="dark"] .value-pill,
+body[data-theme="dark"] .gallery-card {
   background: rgba(15, 23, 42, 0.6);
 }

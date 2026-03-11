@@ -6,7 +6,7 @@
   <div class="d-flex justify-content-between align-items-center">
     <div>
       <h2 class="waec-title mb-1">Parent Result Portal</h2>
-      <div class="text-muted">{{ student.full_name }} · {{ student.admission_number }} · {{ student.class_name }}</div>
+      <div class="text-muted">{{ student.full_name }} | {{ student.admission_number }} | {{ student.class_name }}</div>
     </div>
     <a href="{% url 'results:parent_logout' %}" class="btn btn-outline-dark btn-sm">Logout</a>
   </div>
@@ -47,8 +47,6 @@
           <th>Subject</th>
           <th>CA1</th>
           <th>CA2</th>
-          <th>CA3</th>
-          <th>Project</th>
           <th>Exam</th>
           <th>Total</th>
           <th>Grade</th>
@@ -60,8 +58,6 @@
           <td>{{ result.subject }}</td>
           <td>{{ result.ca1 }}</td>
           <td>{{ result.ca2 }}</td>
-          <td>{{ result.ca3 }}</td>
-          <td>{{ result.project }}</td>
           <td>{{ result.exam }}</td>
           <td>{{ result.total_score }}</td>
           <td>{{ result.grade }}</td>
@@ -117,13 +113,34 @@
   <div class="col-md-3">
     <div class="waec-card p-3">
       <div class="text-muted small">Decision</div>
-      <div class="fw-bold">{{ pass_fail }} · {{ session_rank_display }}</div>
+      <div class="fw-bold">{{ pass_fail }} | {{ session_rank_display }}</div>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+{% if domain_assessment %}
+<div class="row g-3 mt-1">
+  <div class="col-lg-6">
+    <div class="waec-card p-3">
+      <div class="fw-semibold mb-2">Affective Domain (1-5)</div>
+      <div class="small">Discipline: {{ domain_assessment.discipline }} | Respect: {{ domain_assessment.respect }} | Punctuality: {{ domain_assessment.punctuality }}</div>
+      <div class="small">Teamwork: {{ domain_assessment.teamwork }} | Leadership: {{ domain_assessment.leadership }} | Moral Conduct: {{ domain_assessment.moral_conduct }}</div>
+    </div>
+  </div>
+  <div class="col-lg-6">
+    <div class="waec-card p-3">
+      <div class="fw-semibold mb-2">Psychomotor Domain (1-5)</div>
+      <div class="small">Handwriting: {{ domain_assessment.handwriting }} | Sport: {{ domain_assessment.sport }} | Laboratory: {{ domain_assessment.laboratory_practical }}</div>
+      <div class="small">Technical Drawing: {{ domain_assessment.technical_drawing }} | Creative Arts: {{ domain_assessment.creative_arts }} | Computer Practical: {{ domain_assessment.computer_practical }}</div>
+      {% if domain_assessment.teacher_remark %}<div class="small mt-1"><strong>Remark:</strong> {{ domain_assessment.teacher_remark }}</div>{% endif %}
     </div>
   </div>
 </div>
 {% endif %}
 
 <div class="mt-3">
+  <a href="{% url 'billing:my_payment_history' %}" class="btn btn-outline-dark btn-sm">View Payment History</a>
   {% if selected_session and selected_term %}
   <a href="{% url 'results:download_result' student.id selected_session.id selected_term.id %}" class="btn btn-dark btn-sm">Download PDF</a>
   {% endif %}

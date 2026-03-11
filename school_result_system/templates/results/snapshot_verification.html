@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Snapshot Verification{% endblock %}
+
+{% block content %}
+<div class="waec-card p-4 mb-3">
+  <h2 class="waec-title mb-1">Snapshot Verification</h2>
+  <div class="waec-subtitle">Verify integrity of approved result snapshots before/after release.</div>
+</div>
+
+<form method="get" class="waec-card p-3 mb-3">
+  <div class="row g-2 align-items-end">
+    <div class="col-md-5">
+      <label class="form-label">Session</label>
+      <select name="session" class="form-select form-select-sm">
+        {% for session in sessions %}
+          <option value="{{ session.id }}" {% if selected_session and session.id == selected_session.id %}selected{% endif %}>{{ session.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-5">
+      <label class="form-label">Term</label>
+      <select name="term" class="form-select form-select-sm">
+        {% for term in terms %}
+          <option value="{{ term.id }}" {% if selected_term and term.id == selected_term.id %}selected{% endif %}>{{ term }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-2 d-grid">
+      <button class="btn btn-dark btn-sm">Verify</button>
+    </div>
+  </div>
+</form>
+
+<div class="waec-card p-3">
+  <div class="table-responsive">
+    <table class="table table-sm waec-table align-middle">
+      <thead>
+        <tr>
+          <th>Class</th>
+          <th>Approved By</th>
+          <th>Approved At</th>
+          <th>Stored Hash</th>
+          <th>Recalculated Hash</th>
+          <th>Verification</th>
+          <th>Reason</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in snapshots %}
+        <tr>
+          <td>{{ row.snapshot.school_class.name }}</td>
+          <td>{{ row.snapshot.approved_by|default:"-" }}</td>
+          <td>{{ row.snapshot.approved_at|default:"-" }}</td>
+          <td><code>{{ row.snapshot.content_hash|slice:":16" }}...</code></td>
+          <td><code>{{ row.recalculated_hash|slice:":16" }}...</code></td>
+          <td>
+            {% if row.is_valid %}
+              <span class="badge text-bg-success">Valid</span>
+            {% else %}
+              <span class="badge text-bg-danger">Invalid</span>
+            {% endif %}
+          </td>
+          <td>{{ row.reason|default:"-" }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="7" class="text-muted text-center py-3">No snapshots found.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
+

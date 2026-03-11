@@ -28,6 +28,26 @@ SECRET_KEY = 'django-insecure-5nc3wwu2t+b^m%b(d7)7s00kx0fo^pedwi+(_t($pr$pv+%9gj
 DEBUG = os.getenv("DJANGO_DEBUG", "1") == "1"
 
 ALLOWED_HOSTS = [host.strip() for host in os.getenv("DJANGO_ALLOWED_HOSTS", "*").split(",") if host.strip()]
+CSRF_TRUSTED_ORIGINS = [
+    origin.strip()
+    for origin in os.getenv(
+        "DJANGO_CSRF_TRUSTED_ORIGINS",
+        "http://127.0.0.1:8000,http://localhost:8000",
+    ).split(",")
+    if origin.strip()
+]
+SESSION_COOKIE_SAMESITE = "Lax"
+SESSION_COOKIE_HTTPONLY = True
+CSRF_COOKIE_SAMESITE = "Lax"
+CSRF_COOKIE_HTTPONLY = True
+CANONICAL_HOST = os.getenv("DJANGO_CANONICAL_HOST", "").strip()
+FORCE_HTTP = os.getenv("DJANGO_FORCE_HTTP", "0") == "1"
+CANONICAL_SCHEME = (
+    "http" if FORCE_HTTP else os.getenv("DJANGO_CANONICAL_SCHEME", "http").strip().lower()
+)
+SECURE_CONTENT_TYPE_NOSNIFF = False
+SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
+X_FRAME_OPTIONS = "DENY"
 
 
 # Application definition
@@ -39,7 +59,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_extensions',
     'rest_framework',
+    'django_celery_results',
+    'django_celery_beat',
     'accounts',
     'students',
     'academics',
@@ -57,6 +80,7 @@ AUTH_USER_MODEL = 'accounts.User'
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'school_result_system.middleware.CanonicalHostMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -84,6 +108,8 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'school_result_system.wsgi.application'
+LOGIN_URL = "accounts:teacher_login"
+LOGIN_REDIRECT_URL = "accounts:teacher_dashboard"
 
 
 # Database
@@ -132,6 +158,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / "staticfiles"
+SERVE_STATIC = os.getenv("DJANGO_SERVE_STATIC", "1" if DEBUG else "0") == "1"
 
 STATICFILES_DIRS = [
     BASE_DIR / "static",
@@ -140,7 +168,25 @@ STATICFILES_DIRS = [
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
-EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+EMAIL_HOST = os.getenv("DJANGO_EMAIL_HOST", "localhost")
+EMAIL_PORT = int(os.getenv("DJANGO_EMAIL_PORT", "25"))
+EMAIL_USE_TLS = os.getenv("DJANGO_EMAIL_USE_TLS", "0") == "1"
+EMAIL_USE_SSL = os.getenv("DJANGO_EMAIL_USE_SSL", "0") == "1"
+EMAIL_HOST_USER = os.getenv("DJANGO_EMAIL_HOST_USER", "")
+EMAIL_HOST_PASSWORD = os.getenv("DJANGO_EMAIL_HOST_PASSWORD", "")
+DEFAULT_FROM_EMAIL = os.getenv("DJANGO_DEFAULT_FROM_EMAIL", EMAIL_HOST_USER or "webmaster@localhost")
+EMAIL_NOTIFICATIONS_ENABLED = os.getenv("DJANGO_EMAIL_NOTIFICATIONS_ENABLED", "1") == "1"
+
+# Auto-pick SMTP when credentials are configured, even if backend env is omitted.
+if os.getenv("DJANGO_EMAIL_BACKEND"):
+    EMAIL_BACKEND = os.getenv("DJANGO_EMAIL_BACKEND")
+elif EMAIL_HOST_USER and EMAIL_HOST_PASSWORD:
+    EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+else:
+    EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+
+if EMAIL_USE_TLS and EMAIL_USE_SSL:
+    raise RuntimeError("Set only one of DJANGO_EMAIL_USE_TLS=1 or DJANGO_EMAIL_USE_SSL=1.")
 
 SCHOOL_NAME = "Al-Waarith Model College"
 SCHOOL_MOTTO = "Results and Records Portal"
@@ -161,4 +207,61 @@ REST_FRAMEWORK = {
     ],
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
     "PAGE_SIZE": 50,
+}
+
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+LOG_LEVEL = os.getenv("DJANGO_LOG_LEVEL", "INFO")
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "standard": {
+            "format": "%(asctime)s %(levelname)s %(name)s %(message)s",
+        },
+    },
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "standard",
+        },
+    },
+    "root": {
+        "handlers": ["console"],
+        "level": LOG_LEVEL,
+    },
+    "loggers": {
+        "django": {
+            "handlers": ["console"],
+            "level": LOG_LEVEL,
+            "propagate": False,
+        },
+        "django.request": {
+            "handlers": ["console"],
+            "level": "ERROR",
+            "propagate": False,
+        },
+    },
+}
+
+# Celery (no-Redis default: filesystem broker + in-memory results)
+CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL", "filesystem://")
+CELERY_RESULT_BACKEND = os.getenv("CELERY_RESULT_BACKEND", "django-db")
+CELERY_BROKER_TRANSPORT_OPTIONS = {
+    "data_folder_in": str(BASE_DIR / "celerybroker" / "in"),
+    "data_folder_out": str(BASE_DIR / "celerybroker" / "out"),
+    "data_folder_processed": str(BASE_DIR / "celerybroker" / "processed"),
+}
+CELERY_ACCEPT_CONTENT = ["json"]
+CELERY_TASK_SERIALIZER = "json"
+CELERY_RESULT_SERIALIZER = "json"
+CELERY_TIMEZONE = os.getenv("CELERY_TIMEZONE", "UTC")
+CELERY_WORKER_POOL = os.getenv("CELERY_WORKER_POOL", "solo")
+CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
+
+CELERY_BEAT_SCHEDULE = {
+    "send-fee-reminders-daily": {
+        "task": "billing.tasks.send_fee_reminders_task",
+        "schedule": 60 * 60 * 24,
+    },
 }

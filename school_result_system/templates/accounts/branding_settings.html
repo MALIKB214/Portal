@@ -30,6 +30,30 @@
       <label class="form-label">Class Teacher Signature Name</label>
       {{ form.class_teacher_signature_name }}
     </div>
+    <div class="col-md-6">
+      <label class="form-label">Principal Signature Image</label>
+      {{ form.principal_signature_file }}
+    </div>
+    <div class="col-md-6">
+      <label class="form-label">Class Teacher Signature Image</label>
+      {{ form.class_teacher_signature_file }}
+    </div>
+    <div class="col-md-4">
+      <label class="form-label">Grading Template</label>
+      {{ form.grading_template }}
+    </div>
+    <div class="col-md-4">
+      <label class="form-label">Report Template Style</label>
+      {{ form.report_template_style }}
+    </div>
+    <div class="col-md-4">
+      <label class="form-label">Print Density</label>
+      {{ form.report_print_density }}
+    </div>
+    <div class="col-md-4">
+      <label class="form-label">Result Footer Note</label>
+      {{ form.result_footer_note }}
+    </div>
   </div>
 
   <hr>
@@ -54,6 +78,28 @@
     <div class="col-md-4">
       <label class="form-label">Pass Mark</label>
       {{ form.pass_mark }}
+    </div>
+  </div>
+
+  <hr>
+  <h5 class="mb-3">Promotion Policy</h5>
+  <div class="row g-3">
+    <div class="col-md-4">
+      <label class="form-label">Min Attendance Rate (%)</label>
+      {{ form.promotion_min_attendance_rate }}
+    </div>
+    <div class="col-md-4">
+      <label class="form-label">Min Behavior Average (1-5)</label>
+      {{ form.promotion_min_behavior_average }}
+    </div>
+    <div class="col-md-4">
+      <label class="form-label">Require Attendance/Behavior Data</label>
+      <div class="form-check mt-2">
+        {{ form.promotion_require_non_cognitive }}
+        <label class="form-check-label ms-2" for="{{ form.promotion_require_non_cognitive.id_for_label }}">
+          Yes
+        </label>
+      </div>
     </div>
   </div>
 

@@ -29,6 +29,7 @@ class Invoice(models.Model):
         ("unpaid", "Unpaid"),
         ("partial", "Partially Paid"),
         ("paid", "Paid"),
+        ("void", "Voided"),
     )
 
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
@@ -39,6 +40,10 @@ class Invoice(models.Model):
 
     class Meta:
         ordering = ("-created_at",)
+        indexes = [
+            models.Index(fields=("session", "term", "status")),
+            models.Index(fields=("student", "status")),
+        ]
 
     def __str__(self):
         return f"Invoice #{self.id} - {self.student.full_name}"
@@ -51,7 +56,7 @@ class Invoice(models.Model):
     def paid_amount(self):
         return sum(
             payment.amount
-            for payment in self.payments.filter(approval_status="approved")
+            for payment in self.payments.filter(approval_status="approved", is_reversed=False)
         )
 
     @property
@@ -103,11 +108,26 @@ class Payment(models.Model):
     )
     approved_at = models.DateTimeField(null=True, blank=True)
     approval_note = models.CharField(max_length=200, blank=True)
+    is_reversed = models.BooleanField(default=False)
+    reversed_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="reversed_payments",
+    )
+    reversed_at = models.DateTimeField(null=True, blank=True)
+    reversal_note = models.CharField(max_length=200, blank=True)
     notes = models.CharField(max_length=200, blank=True)
     paid_at = models.DateTimeField(default=timezone.now)
 
     class Meta:
         ordering = ("-paid_at",)
+        indexes = [
+            models.Index(fields=("invoice", "approval_status")),
+            models.Index(fields=("approval_status", "is_reversed", "-paid_at")),
+            models.Index(fields=("received_by", "-paid_at")),
+        ]
 
     def __str__(self):
         return f"{self.receipt_number} - {self.amount}"
@@ -120,7 +140,7 @@ class Payment(models.Model):
         super().save(*args, **kwargs)
 
     def approve(self, user, note=""):
-        if self.approval_status != "pending":
+        if self.approval_status != "pending" or self.is_reversed:
             return False
         self.approval_status = "approved"
         self.approved_by = user
@@ -133,7 +153,7 @@ class Payment(models.Model):
         return True
 
     def reject(self, user, note=""):
-        if self.approval_status != "pending":
+        if self.approval_status != "pending" or self.is_reversed:
             return False
         self.approval_status = "rejected"
         self.approved_by = user
@@ -144,3 +164,57 @@ class Payment(models.Model):
             update_fields=["approval_status", "approved_by", "approved_at", "approval_note"]
         )
         return True
+
+    def reverse(self, user, note=""):
+        if self.is_reversed:
+            return False
+        self.is_reversed = True
+        self.reversed_by = user
+        self.reversed_at = timezone.now()
+        if note:
+            self.reversal_note = note
+        self.save(
+            update_fields=["is_reversed", "reversed_by", "reversed_at", "reversal_note"]
+        )
+        return True
+
+
+class FinanceEvent(models.Model):
+    EVENT_CHOICES = (
+        ("invoice_created", "Invoice Created"),
+        ("invoice_item_added", "Invoice Item Added"),
+        ("invoice_voided", "Invoice Voided"),
+        ("payment_created", "Payment Created"),
+        ("payment_approved", "Payment Approved"),
+        ("payment_rejected", "Payment Rejected"),
+        ("payment_reversed", "Payment Reversed"),
+    )
+
+    invoice = models.ForeignKey(
+        Invoice, on_delete=models.SET_NULL, null=True, blank=True, related_name="events"
+    )
+    payment = models.ForeignKey(
+        Payment, on_delete=models.SET_NULL, null=True, blank=True, related_name="events"
+    )
+    invoice_item = models.ForeignKey(
+        InvoiceItem, on_delete=models.SET_NULL, null=True, blank=True, related_name="events"
+    )
+    event_type = models.CharField(max_length=40, choices=EVENT_CHOICES)
+    amount_delta = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    performed_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True
+    )
+    note = models.CharField(max_length=200, blank=True)
+    metadata = models.JSONField(default=dict, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ("-created_at",)
+        indexes = [
+            models.Index(fields=("event_type", "-created_at")),
+            models.Index(fields=("invoice", "-created_at")),
+            models.Index(fields=("payment", "-created_at")),
+        ]
+
+    def __str__(self):
+        return f"{self.event_type} @ {self.created_at:%Y-%m-%d %H:%M}"

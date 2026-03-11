@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+{% block title %}Parent Dashboard{% endblock %}
+
+{% block content %}
+<div class="waec-card p-4 mb-4">
+  <div class="d-flex justify-content-between align-items-center">
+    <div>
+      <h2 class="waec-title mb-1">Parent Dashboard</h2>
+      <div class="text-muted">{{ student.full_name }} | {{ student.admission_number }} | {{ student.class_name }}</div>
+    </div>
+    <a href="{% url 'results:parent_logout' %}" class="btn btn-outline-dark btn-sm">Logout</a>
+  </div>
+</div>
+
+<form method="get" class="waec-card p-3 mb-4">
+  <div class="row g-2 align-items-end">
+    <div class="col-md-5">
+      <label class="form-label">Session</label>
+      <input type="text" class="form-control form-control-sm select-search" data-target="parent-dashboard-session" placeholder="Search session">
+      <select id="parent-dashboard-session" name="session" class="form-select form-select-sm">
+        {% for s in sessions %}
+          <option value="{{ s.id }}" {% if selected_session and s.id == selected_session.id %}selected{% endif %}>{{ s }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-5">
+      <label class="form-label">Term</label>
+      <input type="text" class="form-control form-control-sm select-search" data-target="parent-dashboard-term" placeholder="Search term">
+      <select id="parent-dashboard-term" name="term" class="form-select form-select-sm">
+        {% for t in terms %}
+          <option value="{{ t.id }}" {% if selected_term and t.id == selected_term.id %}selected{% endif %}>{{ t }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-2">
+      <button class="btn btn-dark btn-sm w-100">Load</button>
+    </div>
+  </div>
+</form>
+
+<div class="row g-3 mb-4">
+  <div class="col-md-3"><div class="waec-card p-3"><div class="text-muted small">Term Total</div><div class="fs-5 fw-bold">{{ term_total }}</div></div></div>
+  <div class="col-md-3"><div class="waec-card p-3"><div class="text-muted small">Term Average</div><div class="fs-5 fw-bold">{{ average }}</div></div></div>
+  <div class="col-md-3"><div class="waec-card p-3"><div class="text-muted small">Term Position</div><div class="fs-5 fw-bold">{{ term_rank_display }}</div></div></div>
+  <div class="col-md-3"><div class="waec-card p-3"><div class="text-muted small">Session Position</div><div class="fs-5 fw-bold">{{ session_rank_display }}</div></div></div>
+</div>
+
+{% if show_cumulative %}
+<div class="row g-3 mb-4">
+  <div class="col-md-3"><div class="waec-card p-3"><div class="text-muted small">T1</div><div class="fw-bold">{{ term_totals.1 }}</div></div></div>
+  <div class="col-md-3"><div class="waec-card p-3"><div class="text-muted small">T2</div><div class="fw-bold">{{ term_totals.2 }}</div></div></div>
+  <div class="col-md-3"><div class="waec-card p-3"><div class="text-muted small">T3</div><div class="fw-bold">{{ term_totals.3 }}</div></div></div>
+  <div class="col-md-3"><div class="waec-card p-3"><div class="text-muted small">Promotion Decision</div><div class="fw-bold">{{ promotion_status }}</div></div></div>
+</div>
+<div class="row g-3 mb-4">
+  <div class="col-md-4"><div class="waec-card p-3"><div class="text-muted small">Attendance Rate</div><div class="fw-bold">{{ attendance_rate }}%</div></div></div>
+  <div class="col-md-4"><div class="waec-card p-3"><div class="text-muted small">Behavior Score</div><div class="fw-bold">{{ behavior_average }}</div></div></div>
+  <div class="col-md-4"><div class="waec-card p-3"><div class="text-muted small">Psychomotor Score</div><div class="fw-bold">{{ psychomotor_average }}</div></div></div>
+</div>
+<div class="waec-card p-3 mb-4">
+  <div class="text-muted small">Promotion Basis</div>
+  <div class="fw-semibold">{{ promotion_reason }}</div>
+</div>
+{% endif %}
+
+<div class="row g-4">
+  <div class="col-lg-6">
+    <div class="waec-card p-3 h-100">
+      <h5 class="mb-2">Academic Snapshot</h5>
+      <div class="table-responsive">
+        <table class="table table-sm waec-table align-middle">
+          <thead>
+            <tr><th>Subject</th><th>CA1</th><th>CA2</th><th>Exam</th><th>Total</th><th>Grade</th></tr>
+          </thead>
+          <tbody>
+            {% for result in results %}
+            <tr>
+              <td>{{ result.subject }}</td>
+              <td>{{ result.ca1 }}</td>
+              <td>{{ result.ca2 }}</td>
+              <td>{{ result.exam }}</td>
+              <td>{{ result.total_score }}</td>
+              <td>{{ result.grade }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="6" class="text-center text-muted">No released result for this selection.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% if domain_assessment %}
+      <div class="small mt-2">
+        <strong>Affective:</strong> D{{ domain_assessment.discipline }}, R{{ domain_assessment.respect }}, P{{ domain_assessment.punctuality }}, T{{ domain_assessment.teamwork }}, L{{ domain_assessment.leadership }}, M{{ domain_assessment.moral_conduct }}
+      </div>
+      <div class="small">
+        <strong>Psychomotor:</strong> H{{ domain_assessment.handwriting }}, S{{ domain_assessment.sport }}, Lab{{ domain_assessment.laboratory_practical }}, TD{{ domain_assessment.technical_drawing }}, A{{ domain_assessment.creative_arts }}, C{{ domain_assessment.computer_practical }}
+      </div>
+      {% endif %}
+    </div>
+  </div>
+  <div class="col-lg-6">
+    <div class="waec-card p-3 h-100">
+      <h5 class="mb-2">Payment Snapshot</h5>
+      <div class="row g-2 mb-2">
+        <div class="col-md-4"><div class="badge-pill">Billed: {{ invoice_totals.billed }}</div></div>
+        <div class="col-md-4"><div class="badge-pill">Paid: {{ invoice_totals.paid }}</div></div>
+        <div class="col-md-4"><div class="badge-pill">Balance: {{ invoice_totals.balance }}</div></div>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-sm waec-table align-middle">
+          <thead><tr><th>Receipt</th><th>Amount</th><th>Status</th></tr></thead>
+          <tbody>
+            {% for receipt in recent_receipts %}
+            <tr><td>{{ receipt.receipt_number }}</td><td>{{ receipt.amount }}</td><td>{{ receipt.get_approval_status_display }}</td></tr>
+            {% empty %}
+            <tr><td colspan="3" class="text-center text-muted">No payment records.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-4 mt-1">
+  <div class="col-lg-8">
+    <div class="waec-card p-3">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <h5 class="mb-0">Notifications <span class="badge text-bg-warning">{{ unread_count }}</span></h5>
+        {% if unread_count %}
+        <form method="post" action="{% url 'results:parent_mark_notifications_read' %}">
+          {% csrf_token %}
+          <button class="btn btn-outline-dark btn-sm">Mark All as Read</button>
+        </form>
+        {% endif %}
+      </div>
+      <ul class="mb-0">
+        {% for note in notifications %}
+          <li class="d-flex justify-content-between align-items-center gap-2">
+            <span>
+              {{ note.message }} <span class="text-muted small">({{ note.created_at }})</span>
+              {% if not note.is_read %}<span class="badge text-bg-warning ms-1">New</span>{% endif %}
+            </span>
+            {% if not note.is_read %}
+            <form method="post" action="{% url 'results:parent_mark_notification_read' note.id %}">
+              {% csrf_token %}
+              <button class="btn btn-outline-dark btn-sm">Mark Read</button>
+            </form>
+            {% endif %}
+          </li>
+        {% empty %}
+          <li class="text-muted">No notifications yet.</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  <div class="col-lg-4">
+    <div class="waec-card p-3 h-100">
+      <h6 class="mb-2">Quick Actions</h6>
+      <div class="d-grid gap-2">
+        <a href="{% url 'results:parent_wallet' %}" class="btn btn-dark btn-sm">Result & Receipt Wallet</a>
+        <a href="{% url 'results:parent_notifications' %}" class="btn btn-outline-dark btn-sm">All Notifications</a>
+        <a href="{% url 'billing:my_payment_history' %}" class="btn btn-outline-dark btn-sm">Full Payment History</a>
+        {% if selected_session and selected_term %}
+        <a href="{% url 'results:download_result' student.id selected_session.id selected_term.id %}" class="btn btn-dark btn-sm">Download Result PDF</a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

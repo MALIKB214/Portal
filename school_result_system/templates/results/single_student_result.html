@@ -99,8 +99,6 @@
           <th>Subject</th>
           <th class="text-center">CA1</th>
           <th class="text-center">CA2</th>
-          <th class="text-center">CA3</th>
-          <th class="text-center">Project</th>
           <th class="text-center">Exam</th>
           <th class="text-center">Total</th>
           <th class="text-center">Grade</th>
@@ -118,8 +116,6 @@
           <td>{{ result.subject.name }}</td>
           <td class="text-center">{{ result.ca1 }}</td>
           <td class="text-center">{{ result.ca2 }}</td>
-          <td class="text-center">{{ result.ca3 }}</td>
-          <td class="text-center">{{ result.project }}</td>
           <td class="text-center">{{ result.exam }}</td>
           <td class="text-center fw-semibold">{{ result.total_score }}</td>
           <td class="text-center fw-semibold">{{ result.grade }}</td>
@@ -141,6 +137,48 @@
     </table>
   </div>
 </div>
+
+<div class="waec-card p-3 mb-4">
+  <h5 class="mb-3">Affective and Psychomotor Assessment (Teacher)</h5>
+  <form method="post" class="row g-3">
+    {% csrf_token %}
+    <div class="col-md-4"><label class="form-label">Discipline</label>{{ domain_form.discipline }}</div>
+    <div class="col-md-4"><label class="form-label">Respect</label>{{ domain_form.respect }}</div>
+    <div class="col-md-4"><label class="form-label">Punctuality</label>{{ domain_form.punctuality }}</div>
+    <div class="col-md-4"><label class="form-label">Teamwork</label>{{ domain_form.teamwork }}</div>
+    <div class="col-md-4"><label class="form-label">Leadership</label>{{ domain_form.leadership }}</div>
+    <div class="col-md-4"><label class="form-label">Moral Conduct</label>{{ domain_form.moral_conduct }}</div>
+    <div class="col-md-4"><label class="form-label">Handwriting</label>{{ domain_form.handwriting }}</div>
+    <div class="col-md-4"><label class="form-label">Sport</label>{{ domain_form.sport }}</div>
+    <div class="col-md-4"><label class="form-label">Laboratory Practical</label>{{ domain_form.laboratory_practical }}</div>
+    <div class="col-md-4"><label class="form-label">Technical Drawing</label>{{ domain_form.technical_drawing }}</div>
+    <div class="col-md-4"><label class="form-label">Creative Arts</label>{{ domain_form.creative_arts }}</div>
+    <div class="col-md-4"><label class="form-label">Computer Practical</label>{{ domain_form.computer_practical }}</div>
+    <div class="col-md-4"><label class="form-label">Times School Opened</label>{{ domain_form.times_school_opened }}</div>
+    <div class="col-md-4"><label class="form-label">Times Present</label>{{ domain_form.times_present }}</div>
+    <div class="col-md-4"><label class="form-label">Times Absent</label>{{ domain_form.times_absent }}</div>
+    <div class="col-12"><label class="form-label">Teacher Remark</label>{{ domain_form.teacher_remark }}</div>
+    <div class="col-12"><label class="form-label">Principal Remark</label>{{ domain_form.principal_remark }}</div>
+    <div class="col-md-6"><label class="form-label">Next Term Begins</label>{{ domain_form.next_term_begins }}</div>
+    <div class="col-12"><button class="btn btn-dark btn-sm">Save Domain Assessment</button></div>
+  </form>
+</div>
+
+{% if domain_assessment %}
+<div class="waec-card p-3 mb-4">
+  <h6 class="mb-3">Domain Summary</h6>
+  <div class="row g-3">
+    <div class="col-md-4"><div class="badge-pill">Affective Avg: {{ domain_assessment.affective_average }}</div></div>
+    <div class="col-md-4"><div class="badge-pill">Psychomotor Avg: {{ domain_assessment.psychomotor_average }}</div></div>
+    <div class="col-md-4"><div class="badge-pill">Attendance: {{ domain_assessment.times_present }}/{{ domain_assessment.times_school_opened }}</div></div>
+  </div>
+  <div class="mt-3">
+    {% if domain_assessment.teacher_remark %}<div><strong>Teacher Remark:</strong> {{ domain_assessment.teacher_remark }}</div>{% endif %}
+    {% if domain_assessment.principal_remark %}<div><strong>Principal Remark:</strong> {{ domain_assessment.principal_remark }}</div>{% endif %}
+    {% if domain_assessment.next_term_begins %}<div><strong>Next Term Begins:</strong> {{ domain_assessment.next_term_begins }}</div>{% endif %}
+  </div>
+</div>
+{% endif %}
 
 <div class="row g-3 mb-4">
   <div class="col-md-4">

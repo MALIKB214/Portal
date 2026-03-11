@@ -5,6 +5,9 @@
 <div class="waec-card p-4 mb-3">
   <h2 class="waec-title mb-1">Release Results</h2>
   <div class="waec-subtitle">Approve submitted results first, then release to students.</div>
+  <div class="mt-2">
+    <a class="btn btn-outline-dark btn-sm" href="{% url 'results:snapshot_verification' %}?session={{ selected_session.id }}&term={{ selected_term.id }}">Verify Snapshots</a>
+  </div>
 </div>
 
 {% if summary %}
@@ -15,6 +18,25 @@
     <span class="badge text-bg-success">Approved: {{ summary.approved }}</span>
     <span class="badge text-bg-dark">Total: {{ summary.total }}</span>
   </div>
+</div>
+{% endif %}
+
+{% if snapshot_health.total %}
+<div class="waec-card p-3 mb-3">
+  <div class="d-flex gap-2 flex-wrap">
+    <span class="badge text-bg-dark">Snapshots: {{ snapshot_health.total }}</span>
+    <span class="badge text-bg-success">Valid: {{ snapshot_health.valid }}</span>
+    <span class="badge text-bg-danger">Invalid: {{ snapshot_health.invalid }}</span>
+    <span class="badge text-bg-warning">Missing: {{ snapshot_health.missing }}</span>
+  </div>
+</div>
+{% endif %}
+
+{% if snapshot_health.invalid or snapshot_health.missing %}
+<div class="alert alert-danger">
+  <strong>Integrity Warning:</strong>
+  One or more class snapshots are invalid or missing. Do not release until verification is clean.
+  <a href="{% url 'results:snapshot_verification' %}?session={{ selected_session.id }}&term={{ selected_term.id }}" class="alert-link">Open verification</a>.
 </div>
 {% endif %}
 
@@ -41,12 +63,71 @@
     </div>
     <div class="col-md-4">
       <label class="form-label">Class (optional)</label>
-      <input type="text" name="class_name" class="form-control form-control-sm" placeholder="e.g. JSS2">
+      <input type="text" class="form-control form-control-sm select-search" placeholder="Search class..." data-target="release-class-select">
+      <select id="release-class-select" name="class_name" class="form-select form-select-sm mt-1">
+        <option value="">All Classes</option>
+        {% for class_name in class_names %}
+          <option value="{{ class_name }}" {% if selected_class and class_name == selected_class %}selected{% endif %}>{{ class_name }}</option>
+        {% endfor %}
+      </select>
     </div>
   </div>
   <div class="mt-3">
     <button class="btn btn-outline-dark btn-sm me-2" name="action" value="approve">Approve Submitted Results</button>
-    <button class="btn btn-dark btn-sm" name="action" value="release">Release Results</button>
+    <button
+      class="btn btn-dark btn-sm"
+      name="action"
+      value="release"
+      {% if snapshot_health.invalid or snapshot_health.missing %}disabled title="Resolve invalid/missing snapshots before release"{% endif %}
+    >
+      Release Results
+    </button>
+    <button class="btn btn-outline-danger btn-sm ms-2" name="action" value="reopen">Reopen Workflow</button>
+  </div>
+  {% if snapshot_health.invalid or snapshot_health.missing %}
+  <div class="small text-danger mt-2">
+    Release is disabled until all required snapshots exist and are valid.
+  </div>
+  {% endif %}
+  <div class="mt-3">
+    <label class="form-label">Reopen reason (required for audit trail when reopening)</label>
+    <input type="text" class="form-control form-control-sm" name="reopen_reason" placeholder="e.g. Correction requested by principal">
   </div>
 </form>
+
+{% if snapshots %}
+<div class="waec-card p-3 mt-3">
+  <h6 class="mb-2">Approval Snapshots</h6>
+  <div class="table-responsive">
+    <table class="table table-sm waec-table align-middle">
+      <thead>
+        <tr>
+          <th>Class</th>
+          <th>Approved By</th>
+          <th>Approved At</th>
+          <th>Hash</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for snap in snapshots %}
+        <tr>
+          <td>{{ snap.school_class.name }}</td>
+          <td>{{ snap.approved_by|default:"-" }}</td>
+          <td>{{ snap.approved_at|default:"-" }}</td>
+          <td><code>{{ snap.content_hash|slice:":16" }}...</code></td>
+          <td>
+            {% if snap.invalidated_at %}
+              <span class="badge text-bg-danger">Invalidated</span>
+            {% else %}
+              <span class="badge text-bg-success">Active</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endif %}
 {% endblock %}

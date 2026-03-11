@@ -1,6 +1,16 @@
 from django.contrib import admin
 from django.core.exceptions import PermissionDenied
-from .models import Result, ResultAudit, ResultRelease, Notification
+from .models import (
+    Result,
+    ResultAudit,
+    ResultRelease,
+    Notification,
+    StudentDomainAssessment,
+    ResultWorkflow,
+    ResultSnapshot,
+    ResultReopenLog,
+    ParentPortalAccount,
+)
 
 
 @admin.register(Result)
@@ -13,8 +23,6 @@ class ResultAdmin(admin.ModelAdmin):
         "status",
         "ca1",
         "ca2",
-        "ca3",
-        "project",
         "exam",
         "total_score",
         "grade",
@@ -58,7 +66,47 @@ class ResultReleaseAdmin(admin.ModelAdmin):
     list_filter = ("session", "term")
 
 
+@admin.register(ResultWorkflow)
+class ResultWorkflowAdmin(admin.ModelAdmin):
+    list_display = ("session", "term", "school_class", "status", "updated_at")
+    list_filter = ("session", "term", "school_class", "status")
+
+
 @admin.register(Notification)
 class NotificationAdmin(admin.ModelAdmin):
     list_display = ("student", "session", "term", "message", "created_at", "is_read")
     list_filter = ("session", "term", "is_read")
+
+
+@admin.register(ParentPortalAccount)
+class ParentPortalAccountAdmin(admin.ModelAdmin):
+    list_display = ("user", "student", "is_active", "created_at")
+    list_filter = ("is_active",)
+    search_fields = ("user__username", "student__admission_number", "student__first_name", "student__last_name")
+
+
+@admin.register(StudentDomainAssessment)
+class StudentDomainAssessmentAdmin(admin.ModelAdmin):
+    list_display = ("student", "session", "term", "class_teacher", "updated_at")
+    list_filter = ("session", "term")
+    search_fields = ("student__first_name", "student__last_name", "student__admission_number")
+
+
+@admin.register(ResultSnapshot)
+class ResultSnapshotAdmin(admin.ModelAdmin):
+    list_display = (
+        "session",
+        "term",
+        "school_class",
+        "approved_by",
+        "approved_at",
+        "invalidated_at",
+        "verified_at",
+    )
+    list_filter = ("session", "term", "school_class")
+
+
+@admin.register(ResultReopenLog)
+class ResultReopenLogAdmin(admin.ModelAdmin):
+    list_display = ("session", "term", "school_class", "reopened_by", "reopened_at")
+    list_filter = ("session", "term", "school_class")

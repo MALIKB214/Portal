@@ -32,8 +32,6 @@
               <th>Subject</th>
               <th class="text-center">CA1</th>
               <th class="text-center">CA2</th>
-              <th class="text-center">CA3</th>
-              <th class="text-center">Project</th>
               <th class="text-center">Exam</th>
               <th class="text-center">Total</th>
               <th class="text-center">Grade</th>
@@ -45,8 +43,6 @@
               <td>{{ result.subject }}</td>
               <td class="text-center">{{ result.ca1 }}</td>
               <td class="text-center">{{ result.ca2 }}</td>
-              <td class="text-center">{{ result.ca3 }}</td>
-              <td class="text-center">{{ result.project }}</td>
               <td class="text-center">{{ result.exam }}</td>
               <td class="text-center">{{ result.total_score }}</td>
               <td class="text-center fw-semibold">{{ result.grade }}</td>
@@ -66,6 +62,14 @@
         <div class="col-md-4"><div class="badge-pill">Cumulative Average: {{ cumulative_average }}</div></div>
         <div class="col-md-4"><div class="badge-pill">Cumulative Rank: {{ cumulative_rank_display }}</div></div>
       </div>
+      <div class="row g-3 mt-3">
+        <div class="col-md-4"><div class="badge-pill">Attendance Rate: {{ attendance_rate }}%</div></div>
+        <div class="col-md-4"><div class="badge-pill">Behavior Score: {{ behavior_average }}</div></div>
+        <div class="col-md-4"><div class="badge-pill">Promotion: {{ promotion_status }}</div></div>
+      </div>
+      <div class="waec-card p-3 mt-3">
+        <strong>Promotion Basis:</strong> {{ promotion_reason }}
+      </div>
 
       <div class="mt-3">
         <h6>Session Term Totals</h6>
@@ -83,6 +87,56 @@
           {% endfor %}
         </ul>
       </div>
+
+      {% if domain_assessment %}
+      <div class="row g-3 mt-2">
+        <div class="col-lg-6">
+          <div class="waec-card p-3">
+            <h6 class="mb-2">Affective Domain (1-5)</h6>
+            <ul class="mb-0">
+              <li>Discipline: {{ domain_assessment.discipline }}</li>
+              <li>Respect: {{ domain_assessment.respect }}</li>
+              <li>Punctuality: {{ domain_assessment.punctuality }}</li>
+              <li>Teamwork: {{ domain_assessment.teamwork }}</li>
+              <li>Leadership: {{ domain_assessment.leadership }}</li>
+              <li>Moral Conduct: {{ domain_assessment.moral_conduct }}</li>
+            </ul>
+            <div class="mt-2"><strong>Affective Average:</strong> {{ domain_assessment.affective_average }}</div>
+          </div>
+        </div>
+        <div class="col-lg-6">
+          <div class="waec-card p-3">
+            <h6 class="mb-2">Psychomotor Domain (1-5)</h6>
+            <ul class="mb-0">
+              <li>Handwriting: {{ domain_assessment.handwriting }}</li>
+              <li>Sport: {{ domain_assessment.sport }}</li>
+              <li>Laboratory Practical: {{ domain_assessment.laboratory_practical }}</li>
+              <li>Technical Drawing: {{ domain_assessment.technical_drawing }}</li>
+              <li>Creative Arts: {{ domain_assessment.creative_arts }}</li>
+              <li>Computer Practical: {{ domain_assessment.computer_practical }}</li>
+            </ul>
+            <div class="mt-2"><strong>Psychomotor Average:</strong> {{ domain_assessment.psychomotor_average }}</div>
+            {% if domain_assessment.teacher_remark %}
+            <div class="mt-2"><strong>Teacher Remark:</strong> {{ domain_assessment.teacher_remark }}</div>
+            {% endif %}
+            {% if domain_assessment.principal_remark %}
+            <div><strong>Principal Remark:</strong> {{ domain_assessment.principal_remark }}</div>
+            {% endif %}
+            {% if domain_assessment.next_term_begins %}
+            <div><strong>Next Term Begins:</strong> {{ domain_assessment.next_term_begins }}</div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      <div class="waec-card p-3 mt-3">
+        <h6 class="mb-2">Attendance Summary</h6>
+        <div class="row g-2">
+          <div class="col-md-4"><div class="badge-pill">Times School Opened: {{ domain_assessment.times_school_opened }}</div></div>
+          <div class="col-md-4"><div class="badge-pill">Times Present: {{ domain_assessment.times_present }}</div></div>
+          <div class="col-md-4"><div class="badge-pill">Times Absent: {{ domain_assessment.times_absent }}</div></div>
+        </div>
+      </div>
+      {% endif %}
 
       <div class="text-end mt-3">
         <a href="{% url 'results:download_result' student.id session.id term.id %}" class="btn btn-dark btn-sm">

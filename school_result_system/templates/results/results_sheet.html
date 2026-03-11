@@ -31,7 +31,19 @@
     </div>
     <div class="col-md-4 d-grid">
       <button class="btn btn-dark btn-sm">Filter</button>
-      <a href="{% url 'results:download_all_results' %}?session={{ selected_session.id }}&term={{ selected_term.id }}" class="btn btn-outline-dark btn-sm mt-2">Download PDF</a>
+      <div class="input-group input-group-sm mt-2">
+        <select name="density" class="form-select">
+          <option value="standard">PDF: Standard</option>
+          <option value="dense">PDF: Dense</option>
+        </select>
+        <button
+          type="submit"
+          formaction="{% url 'results:download_all_results' %}"
+          class="btn btn-outline-dark"
+        >
+          Download
+        </button>
+      </div>
     </div>
   </div>
 </form>

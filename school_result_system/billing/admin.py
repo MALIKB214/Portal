@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import FeeCategory, Invoice, InvoiceItem, Payment
+from .models import FeeCategory, FinanceEvent, Invoice, InvoiceItem, Payment
 
 
 @admin.register(FeeCategory)
@@ -24,6 +24,13 @@ class InvoiceAdmin(admin.ModelAdmin):
 
 @admin.register(Payment)
 class PaymentAdmin(admin.ModelAdmin):
-    list_display = ("receipt_number", "invoice", "amount", "method", "paid_at")
-    list_filter = ("method", "paid_at")
+    list_display = ("receipt_number", "invoice", "amount", "method", "approval_status", "is_reversed", "paid_at")
+    list_filter = ("method", "approval_status", "is_reversed", "paid_at")
     search_fields = ("receipt_number", "invoice__student__admission_number")
+
+
+@admin.register(FinanceEvent)
+class FinanceEventAdmin(admin.ModelAdmin):
+    list_display = ("event_type", "invoice", "payment", "amount_delta", "performed_by", "created_at")
+    list_filter = ("event_type", "created_at")
+    search_fields = ("invoice__id", "payment__receipt_number", "note")

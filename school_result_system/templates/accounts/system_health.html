@@ -1,0 +1,179 @@
+{% extends "base.html" %}
+{% block title %}System Health{% endblock %}
+
+{% block content %}
+<div class="waec-card p-4 mb-4">
+  <div class="d-flex justify-content-between align-items-center">
+    <div>
+      <h2 class="waec-title mb-1">System Health</h2>
+      <div class="waec-subtitle">Celery broker and schedule overview.</div>
+    </div>
+    <a class="btn btn-outline-dark btn-sm" href="{% url 'accounts:schedule_manager' %}">Manage Schedules</a>
+  </div>
+</div>
+
+<div class="row g-3 mb-4">
+  <div class="col-md-6">
+    <div class="waec-card p-3">
+      <div class="text-muted small">Broker</div>
+      <div class="fw-semibold">{{ broker_url|default:"-" }}</div>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="waec-card p-3">
+      <div class="text-muted small">Result Backend</div>
+      <div class="fw-semibold">{{ result_backend|default:"-" }}</div>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="waec-card p-3">
+      <div class="text-muted small">Beat Scheduler</div>
+      <div class="fw-semibold">{{ beat_scheduler|default:"-" }}</div>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="waec-card p-3">
+      <div class="text-muted small">Worker Pool</div>
+      <div class="fw-semibold">{{ worker_pool|default:"-" }}</div>
+    </div>
+  </div>
+</div>
+
+<div class="waec-card p-3 mb-4">
+  <div class="d-flex justify-content-between align-items-center mb-2">
+    <div class="fw-semibold">Disaster Recovery</div>
+    <div class="text-muted small">SQLite backup and restore</div>
+  </div>
+  <div class="row g-3">
+    <div class="col-md-4">
+      <div class="text-muted small">Database File</div>
+      <div class="fw-semibold">{{ db_path }}</div>
+      <div class="small">Exists: {{ db_exists }} | Size: {{ db_size_mb }} MB</div>
+      <form method="post" class="mt-2">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="backup_now">
+        <button class="btn btn-dark btn-sm">Create Backup Now</button>
+      </form>
+    </div>
+    <div class="col-md-8">
+      <div class="d-flex justify-content-between align-items-center border rounded p-2 mb-2">
+        <div>
+          <div class="small text-muted">Daily Backup Schedule</div>
+          {% if backup_schedule %}
+            <div class="fw-semibold">{{ backup_schedule.name }}</div>
+            <div class="small text-muted">Enabled: {{ backup_schedule.enabled }} | Last run: {{ backup_schedule.last_run_at|default:"-" }}</div>
+          {% else %}
+            <div class="text-muted">Not configured yet.</div>
+          {% endif %}
+        </div>
+        <form method="post">
+          {% csrf_token %}
+          <input type="hidden" name="action" value="ensure_backup_schedule">
+          <button class="btn btn-outline-dark btn-sm">Enable Daily Backup</button>
+        </form>
+      </div>
+      <form method="post" class="border rounded p-2">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="restore_backup">
+        <div class="row g-2 align-items-end">
+          <div class="col-md-7">
+            <label class="form-label small">Backup File</label>
+            <select name="backup_name" class="form-select form-select-sm">
+              {% for file in backup_files %}
+                <option value="{{ file.name }}">{{ file.name }}</option>
+              {% empty %}
+                <option value="">No backup files</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label small">Type RESTORE</label>
+            <input type="text" class="form-control form-control-sm" name="confirm_restore" placeholder="RESTORE">
+          </div>
+          <div class="col-md-2 d-grid">
+            <button class="btn btn-outline-danger btn-sm">Restore</button>
+          </div>
+        </div>
+      </form>
+      <div class="small text-danger mt-2">
+        Restore replaces current database. Use only when necessary.
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="waec-card p-3">
+  <div class="d-flex justify-content-between align-items-center mb-2">
+    <div class="fw-semibold">Schedule Summary</div>
+    <div class="text-muted small">Enabled: {{ enabled_count }} · Disabled: {{ disabled_count }}</div>
+  </div>
+  <div class="table-responsive">
+    <table class="table table-sm waec-table align-middle">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Status</th>
+          <th>Last Run</th>
+          <th>Total Runs</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for task in tasks %}
+        <tr>
+          <td>{{ task.name }}</td>
+          <td>
+            {% if task.enabled %}
+              <span class="badge bg-success">Enabled</span>
+            {% else %}
+              <span class="badge bg-secondary">Disabled</span>
+            {% endif %}
+          </td>
+          <td>{{ task.last_run_at|default:"-" }}</td>
+          <td>{{ task.total_run_count }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="4" class="text-center text-muted py-3">No schedules available.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <div class="text-muted small mt-2">
+    This page does not confirm worker availability. If tasks do not execute, verify the Celery worker and beat logs.
+  </div>
+</div>
+
+<div class="waec-card p-3 mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-2">
+    <div class="fw-semibold">Recent Schedule Actions</div>
+    <div class="text-muted small">Last 12 actions</div>
+  </div>
+  <div class="table-responsive">
+    <table class="table table-sm waec-table align-middle">
+      <thead>
+        <tr>
+          <th>Action</th>
+          <th>Detail</th>
+          <th>By</th>
+          <th>When</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for log in recent_logs %}
+        <tr>
+          <td>{{ log.action }}</td>
+          <td class="text-muted">{{ log.detail }}</td>
+          <td>{{ log.created_by.username|default:"System" }}</td>
+          <td>{{ log.created_at|date:"Y-m-d H:i" }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="4" class="text-center text-muted py-3">No actions logged yet.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

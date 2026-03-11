@@ -6,7 +6,7 @@
   <div class="col-lg-6">
     <div class="waec-card p-4">
       <h4 class="waec-title mb-1">Parent Portal Login</h4>
-      <div class="waec-subtitle mb-3">Use your child's admission number and surname.</div>
+      <div class="waec-subtitle mb-3">Use parent account username/password. Legacy surname login remains available temporarily.</div>
 
       {% if messages %}
         {% for message in messages %}
@@ -17,15 +17,30 @@
       <form method="post" class="row g-3">
         {% csrf_token %}
         <div class="col-12">
+          <label class="form-label">Parent Username</label>
+          <input type="text" name="username" class="form-control" placeholder="e.g parent_sch2026001">
+        </div>
+        <div class="col-12">
+          <label class="form-label">Password</label>
+          <input type="password" name="password" class="form-control" placeholder="Parent account password">
+        </div>
+        <div class="col-12">
+          <hr>
+          <div class="small text-muted">Legacy mode (deprecated)</div>
+        </div>
+        <div class="col-12">
           <label class="form-label">Admission Number</label>
-          <input type="text" name="admission_number" class="form-control" placeholder="e.g SCH/2026/001" required>
+          <input type="text" name="admission_number" class="form-control" placeholder="e.g SCH/2026/001">
         </div>
         <div class="col-12">
           <label class="form-label">Student Surname</label>
-          <input type="text" name="parent_surname" class="form-control" placeholder="e.g Bello" required>
+          <input type="text" name="parent_surname" class="form-control" placeholder="e.g Bello">
         </div>
         <div class="col-12">
           <button class="btn btn-dark w-100">Login to Portal</button>
+        </div>
+        <div class="col-12 text-center">
+          <a href="{% url 'results:parent_password_reset' %}" class="btn btn-link btn-sm">Forgot parent password?</a>
         </div>
       </form>
     </div>

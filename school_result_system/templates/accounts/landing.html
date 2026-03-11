@@ -8,24 +8,113 @@
     <div class="col-lg-7">
       <h1 class="waec-title display-6 mb-2">{{ brand.school_name|default:school_name_display }}</h1>
       <p class="waec-subtitle mb-3">{{ brand.school_motto|default:school_motto_display }}</p>
-      <p class="mb-4">Reliable school management for result processing, fee tracking, approval workflow, and parent visibility.</p>
+      <p class="mb-4">
+        A purpose‑driven secondary school where academic excellence meets character formation.
+        We build confident learners through disciplined teaching, strong mentorship, and clear progress tracking.
+      </p>
       <div class="d-flex flex-wrap gap-2">
-        <a href="{% url 'accounts:teacher_login' %}" class="btn btn-dark">Login</a>
+        <a href="#admissions" class="btn btn-dark">Admissions</a>
         <a href="{% url 'results:parent_login' %}" class="btn btn-outline-dark">Parent Portal</a>
-        <a href="#pricing" class="btn btn-outline-dark">View Pricing</a>
+        <a href="{% url 'accounts:teacher_login' %}" class="btn btn-outline-dark">Staff Login</a>
       </div>
     </div>
     <div class="col-lg-5 text-center">
       <img src="{{ school_logo_url }}" alt="School Logo" class="landing-logo mb-3">
-      <div class="badge-pill d-inline-block">Trusted Result & Billing Workflow</div>
+      <div class="badge-pill d-inline-block">Academic Excellence · Discipline · Leadership</div>
     </div>
   </div>
 </section>
 
-<section class="waec-card p-4 mb-4" id="features">
-  <h3 class="waec-title mb-3">Features</h3>
+<section class="waec-card p-4 mb-4" id="about">
+  <div class="row g-4 align-items-center">
+    <div class="col-lg-7">
+      <h3 class="waec-title mb-3">About Our School</h3>
+      <p class="mb-3">
+        {{ brand.school_name|default:school_name_display }} is committed to raising well‑rounded students who excel
+        academically and demonstrate strong moral values. Our structured curriculum blends theory with practical
+        learning, preparing students for national examinations and responsible citizenship.
+      </p>
+      <div class="d-flex flex-wrap gap-2">
+        {% for value in core_values %}
+        <span class="value-pill">{{ value }}</span>
+        {% endfor %}
+      </div>
+    </div>
+    <div class="col-lg-5">
+      <div class="landing-card p-3">
+        <div class="fw-semibold mb-2">Why Parents Choose Us</div>
+        <ul class="list-unstyled mb-0 small">
+          <li>• Transparent academic reporting</li>
+          <li>• Consistent discipline and guidance</li>
+          <li>• Safe, structured learning environment</li>
+          <li>• Active parent‑teacher communication</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="waec-card p-4 mb-4" id="history">
+  <div class="row g-4 align-items-center">
+    <div class="col-lg-6">
+      <div class="landing-card p-3">
+        <div class="fw-semibold mb-2">School History</div>
+        <div class="small text-muted mb-2">{{ history.message }}</div>
+        <div class="d-flex flex-wrap gap-2">
+          <span class="badge-pill">Founded: {{ history.year_founded }}</span>
+          <span class="badge-pill">Founder: {{ history.founder }}</span>
+          <span class="badge-pill">Location: {{ history.address }}</span>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-6">
+      <div class="landing-card p-3">
+        <div class="fw-semibold mb-2">Our Identity</div>
+        <div class="small text-muted mb-1">Motto</div>
+        <div class="fw-semibold">{{ anthem.motto }}</div>
+        <div class="small text-muted mt-3 mb-1">{{ anthem.title }}</div>
+        <div class="small">
+          {% for line in anthem.lines %}
+            <div>{{ line }}</div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="waec-card p-4 mb-4" id="programs">
+  <h3 class="waec-title mb-3">Academic Programs</h3>
   <div class="row g-3">
-    {% for item in features %}
+    {% for item in programs %}
+    <div class="col-md-4">
+      <div class="feature-item p-3 rounded-3 h-100">
+        <div class="fw-semibold mb-2">{{ item.title }}</div>
+        <div class="text-muted small">{{ item.desc }}</div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="waec-card p-4 mb-4" id="gallery">
+  <h3 class="waec-title mb-3">Campus Life</h3>
+  <div class="row g-3">
+    {% for item in gallery %}
+    <div class="col-md-3">
+      <div class="gallery-card p-3 h-100">
+        <div class="fw-semibold mb-2">{{ item.title }}</div>
+        <div class="text-muted small">{{ item.desc }}</div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="waec-card p-4 mb-4" id="highlights">
+  <h3 class="waec-title mb-3">School Highlights</h3>
+  <div class="row g-3">
+    {% for item in highlights %}
     <div class="col-md-6">
       <div class="feature-item p-3 rounded-3">{{ item }}</div>
     </div>
@@ -33,18 +122,31 @@
   </div>
 </section>
 
-<section class="waec-card p-4 mb-4" id="pricing">
-  <h3 class="waec-title mb-3">Pricing</h3>
-  <div class="row g-3">
-    {% for plan in pricing %}
-    <div class="col-md-4">
-      <div class="pricing-card p-3 h-100">
-        <div class="fw-bold fs-5">{{ plan.name }}</div>
-        <div class="fs-4 my-2">{{ plan.price }}</div>
-        <div class="text-muted small">{{ plan.desc }}</div>
+<section class="waec-card p-4 mb-4" id="admissions">
+  <div class="row g-4 align-items-center">
+    <div class="col-lg-7">
+      <h3 class="waec-title mb-3">Admissions</h3>
+      <p class="mb-3">
+        We welcome students into JSS1, JSS2, SS1, and transfer classes based on available spaces.
+        Admission is merit‑based and includes an entrance assessment and interview where applicable.
+      </p>
+      <div class="d-flex flex-wrap gap-2">
+        <span class="badge-pill">Entrance Assessment</span>
+        <span class="badge-pill">Parent Interview</span>
+        <span class="badge-pill">Academic Records</span>
       </div>
     </div>
-    {% endfor %}
+    <div class="col-lg-5">
+      <div class="landing-card p-3">
+        <div class="fw-semibold mb-2">Required Documents</div>
+        <ul class="list-unstyled mb-0 small">
+          <li>• Recent passport photograph</li>
+          <li>• Birth certificate</li>
+          <li>• Last school report/result</li>
+          <li>• Transfer letter (if applicable)</li>
+        </ul>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -69,6 +171,38 @@
     <div class="col-md-6">
       <label class="form-label">School Name</label>
       {{ contact_form.school_name }}
+    </div>
+    <div class="col-md-4">
+      <label class="form-label">Role</label>
+      {{ contact_form.role }}
+    </div>
+    <div class="col-md-4">
+      <label class="form-label">Intended Class</label>
+      {{ contact_form.intended_class }}
+    </div>
+    <div class="col-md-4">
+      <label class="form-label">Reason</label>
+      {{ contact_form.reason }}
+    </div>
+    <div class="col-md-6">
+      <label class="form-label">Preferred Contact</label>
+      {{ contact_form.preferred_contact }}
+    </div>
+    <div class="col-md-6">
+      <label class="form-label">Guardian Name</label>
+      {{ contact_form.guardian_name }}
+    </div>
+    <div class="col-md-4">
+      <label class="form-label">Student Age</label>
+      {{ contact_form.student_age }}
+    </div>
+    <div class="col-md-4">
+      <label class="form-label">Preferred Visit Date</label>
+      {{ contact_form.preferred_visit_date }}
+    </div>
+    <div class="col-md-4">
+      <label class="form-label">How did you hear about us?</label>
+      {{ contact_form.referral_source }}
     </div>
     <div class="col-12">
       <label class="form-label">Message</label>

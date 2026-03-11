@@ -8,10 +8,21 @@
     <h2 class="waec-title mb-1">Invoices</h2>
     <div class="waec-subtitle">Billing records for fees and projects</div>
   </div>
-  <a href="{% url 'billing:invoice_create' %}" class="btn btn-dark btn-sm">New Invoice</a>
+  <div class="d-flex gap-2">
+    <a href="{% url 'billing:dashboard' %}" class="btn btn-outline-dark btn-sm">Dashboard</a>
+    {% if can_create_invoice %}
+    <a href="{% url 'billing:invoice_create' %}" class="btn btn-dark btn-sm">New Invoice</a>
+    {% endif %}
+  </div>
 </div>
 
 <div class="waec-card p-3">
+  <div class="row g-3 mb-3">
+    <div class="col-md-3"><div class="badge-pill">Total Revenue: {{ total_revenue }}</div></div>
+    <div class="col-md-3"><div class="badge-pill">Outstanding: {{ total_outstanding }}</div></div>
+    <div class="col-md-3"><div class="badge-pill">Fully Paid: {{ fully_paid_count }}</div></div>
+    <div class="col-md-3"><div class="badge-pill">Owing: {{ owing_count }}</div></div>
+  </div>
   <div class="table-responsive">
     <table class="table table-sm waec-table align-middle">
       <thead>

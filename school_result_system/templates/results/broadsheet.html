@@ -38,10 +38,23 @@
 </form>
 
 <div class="waec-card p-3">
-  <div class="d-flex gap-2 mb-3">
+  <form method="get" class="d-flex gap-2 mb-3 align-items-center">
+    <input type="hidden" name="session" value="{{ selected_session.id }}">
+    <input type="hidden" name="term" value="{{ selected_term.id }}">
     <a class="btn btn-outline-dark btn-sm" href="{% url 'results:broadsheet_export' %}?session={{ selected_session.id }}&term={{ selected_term.id }}&export=csv">Export CSV</a>
-    <a class="btn btn-outline-dark btn-sm" href="{% url 'results:broadsheet_export' %}?session={{ selected_session.id }}&term={{ selected_term.id }}&export=pdf">Export PDF</a>
-  </div>
+    <input type="hidden" name="export" value="pdf">
+    <select name="density" class="form-select form-select-sm" style="max-width: 170px;">
+      <option value="standard">PDF: Standard</option>
+      <option value="dense">PDF: Dense</option>
+    </select>
+    <button
+      type="submit"
+      formaction="{% url 'results:broadsheet_export' %}"
+      class="btn btn-outline-dark btn-sm"
+    >
+      Export PDF
+    </button>
+  </form>
   <div class="table-responsive">
     <table class="table table-sm waec-table align-middle">
       <thead>

@@ -8,7 +8,7 @@ from .forms import StudentForm
 def student_list(request):
     if request.user.teacher_class:
         students = Student.objects.filter(
-            class_name=request.user.teacher_class.name
+            school_class=request.user.teacher_class
         ).order_by("class_name", "last_name")
     else:
         students = Student.objects.none()
@@ -22,6 +22,7 @@ def student_add(request):
         if form.is_valid():
             student = form.save(commit=False)
             if request.user.teacher_class:
+                student.school_class = request.user.teacher_class
                 student.class_name = request.user.teacher_class.name
             student.save()
             return redirect("students:list")
@@ -34,7 +35,7 @@ def student_add(request):
 @teacher_with_class_required
 def student_edit(request, pk):
     student = get_object_or_404(Student, pk=pk)
-    if request.user.teacher_class and student.class_name != request.user.teacher_class.name:
+    if request.user.teacher_class and student.school_class_id != request.user.teacher_class.id:
         return redirect("students:list")
 
     if request.method == "POST":
@@ -42,6 +43,7 @@ def student_edit(request, pk):
         if form.is_valid():
             student = form.save(commit=False)
             if request.user.teacher_class:
+                student.school_class = request.user.teacher_class
                 student.class_name = request.user.teacher_class.name
             student.save()
             return redirect("students:list")
