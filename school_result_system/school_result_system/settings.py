@@ -62,7 +62,7 @@ INSTALLED_APPS = [
     'django_extensions',
     'rest_framework',
     'django_celery_results',
-    # 'django_celery_beat',
+    # pip'django_celery_beat',
     'accounts',
     'students',
     'academics',
