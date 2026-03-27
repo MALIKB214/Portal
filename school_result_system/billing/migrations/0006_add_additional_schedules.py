@@ -43,7 +43,6 @@ def remove_additional_schedules(apps, schema_editor):
 class Migration(migrations.Migration):
     dependencies = [
         ("billing", "0005_add_fee_reminder_schedule"),
-        ("django_celery_beat", "0001_initial"),
     ]
 
     operations = [

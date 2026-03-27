@@ -28,7 +28,6 @@ def remove_fee_reminder_schedule(apps, schema_editor):
 class Migration(migrations.Migration):
     dependencies = [
         ("billing", "0004_financeevent_billing_fin_event_t_07b68b_idx_and_more"),
-        ("django_celery_beat", "0001_initial"),
     ]
 
     operations = [
